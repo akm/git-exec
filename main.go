@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+var commitPrefix = func() string {
+	if prefix := os.Getenv("GIT_EXEC_COMMIT_PREFIX"); prefix != "" {
+		return prefix
+	}
+	return "🤖"
+}()
+
 func main() {
 	// 1. このプログラムに渡された引数をコマンドとして実行する。
 	//    その際には、コマンドの照準出力と標準エラー出力をバッファに格納する。
@@ -39,7 +46,7 @@ func main() {
 	}
 
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage := fmt.Sprintf("🤖 %s\n\n%s\n", strings.Join(os.Args[1:], " "), outBuf.String())
+	commitMessage := fmt.Sprintf("%s %s\n\n%s\n", commitPrefix, strings.Join(os.Args[1:], " "), outBuf.String())
 	// See https://tracpath.com/docs/git-commit/
 	commitCmd := exec.Command("git", "commit", "--file", "-")
 	commitCmd.Stdin = bytes.NewBufferString(commitMessage)
