@@ -45,8 +45,17 @@ func main() {
 		return
 	}
 
+	commandParts := make([]string, len(os.Args)-1)
+	for i, arg := range os.Args[1:] {
+		if strings.Contains(arg, " ") {
+			commandParts[i] = fmt.Sprintf("'%s'", arg)
+		} else {
+			commandParts[i] = arg
+		}
+	}
+
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage := fmt.Sprintf("%s %s\n\n%s\n", commitPrefix, strings.Join(os.Args[1:], " "), outBuf.String())
+	commitMessage := fmt.Sprintf("%s %s\n\n%s\n", commitPrefix, strings.Join(commandParts, " "), outBuf.String())
 	// See https://tracpath.com/docs/git-commit/
 	commitCmd := exec.Command("git", "commit", "--file", "-")
 	commitCmd.Stdin = bytes.NewBufferString(commitMessage)
