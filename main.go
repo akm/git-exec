@@ -94,9 +94,12 @@ func buildCommitMessageFirstLine(envs []string, commandArgs []string) string {
 		}
 	}
 
-	return fmt.Sprintf("%s %s %s",
+	parts := []string{
 		commitPrefix,
-		strings.Join(envs, " "),
-		strings.Join(commandParts, " "),
-	)
+	}
+	if len(envs) > 0 {
+		parts = append(parts, strings.Join(envs, " "))
+	}
+	parts = append(parts, strings.Join(commandParts, " "))
+	return strings.Join(parts, " ")
 }
