@@ -126,7 +126,9 @@ func buildCommitMessageHead() (string, error) {
 	}
 
 	var location string
-	if strings.HasPrefix(relPath, "./") {
+	if relPath == "." {
+		location = rootDirName
+	} else if strings.HasPrefix(relPath, "./") {
 		location = rootDirName + relPath[1:]
 	} else if strings.HasPrefix(relPath, "/") {
 		location = relPath
