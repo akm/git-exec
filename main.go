@@ -128,8 +128,10 @@ func buildCommitMessageHead() (string, error) {
 	var location string
 	if strings.HasPrefix(relPath, "./") {
 		location = rootDirName + relPath[1:]
-	} else {
+	} else if strings.HasPrefix(relPath, "/") {
 		location = relPath
+	} else {
+		location = rootDirName + "/" + relPath
 	}
 
 	return fmt.Sprintf(commitPrefix, location), nil
