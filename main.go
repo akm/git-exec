@@ -13,7 +13,7 @@ var commitPrefix = func() string {
 	if prefix := os.Getenv("GIT_EXEC_COMMIT_PREFIX"); prefix != "" {
 		return prefix
 	}
-	return "🤖 %s $"
+	return "🤖 [%s] $"
 }()
 
 func main() {
