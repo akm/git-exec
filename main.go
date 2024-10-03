@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ var commitPrefix = func() string {
 	if prefix := os.Getenv("GIT_EXEC_COMMIT_PREFIX"); prefix != "" {
 		return prefix
 	}
-	return "🤖 $"
+	return "🤖 @%s $"
 }()
 
 func main() {
@@ -48,22 +49,9 @@ func main() {
 		return
 	}
 
-	commandParts := make([]string, len(commandArgs))
-	for i, arg := range commandArgs {
-		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
-			commandParts[i] = fmt.Sprintf("'%s'", arg)
-		} else {
-			commandParts[i] = arg
-		}
-	}
-
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage := fmt.Sprintf("%s %s %s\n\n%s\n",
-		commitPrefix,
-		strings.Join(envs, " "),
-		strings.Join(commandParts, " "),
-		outBuf.String(),
-	)
+	commitMessage := buildCommitMessage(envs, commandArgs, &outBuf)
+
 	// See https://tracpath.com/docs/git-commit/
 	commitCmd := exec.Command("git", "commit", "--file", "-")
 	commitCmd.Stdin = bytes.NewBufferString(commitMessage)
@@ -87,4 +75,74 @@ func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
 		}
 	}
 	return envs, command
+}
+
+func buildCommitMessage(envs []string, commandArgs []string, outBuf *bytes.Buffer) string {
+	firstLine := buildCommitMessageFirstLine(envs, commandArgs)
+	return fmt.Sprintf("%s\n\n%s\n",
+		firstLine,
+		outBuf.String(),
+	)
+}
+
+func buildCommitMessageFirstLine(envs []string, commandArgs []string) string {
+	commandParts := make([]string, len(commandArgs))
+	for i, arg := range commandArgs {
+		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
+			commandParts[i] = fmt.Sprintf("'%s'", arg)
+		} else {
+			commandParts[i] = arg
+		}
+	}
+
+	head, err := buildCommitMessageHead()
+	if err != nil {
+		fmt.Printf("Failed to build commit prefix: %+v\n", err)
+		panic(err)
+	}
+
+	parts := []string{head}
+	if len(envs) > 0 {
+		parts = append(parts, strings.Join(envs, " "))
+	}
+	parts = append(parts, strings.Join(commandParts, " "))
+	return strings.Join(parts, " ")
+}
+
+func buildCommitMessageHead() (string, error) {
+	curDir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	rootDir, err := gitRootDir()
+	if err != nil {
+		return "", err
+	}
+	rootDirName := filepath.Base(rootDir)
+
+	relPath, err := filepath.Rel(rootDir, curDir)
+	if err != nil {
+		return "", err
+	}
+
+	var location string
+	if relPath == "." {
+		location = rootDirName
+	} else if strings.HasPrefix(relPath, "./") {
+		location = rootDirName + relPath[1:]
+	} else if strings.HasPrefix(relPath, "/") {
+		location = relPath
+	} else {
+		location = rootDirName + "/" + relPath
+	}
+
+	return fmt.Sprintf(commitPrefix, location), nil
+}
+
+func gitRootDir() (string, error) {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
 }
