@@ -77,6 +77,14 @@ func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
 }
 
 func buildCommitMessage(envs []string, commandArgs []string, outBuf *bytes.Buffer) string {
+	firstLine := buildCommitMessageFirstLine(envs, commandArgs)
+	return fmt.Sprintf("%s\n\n%s\n",
+		firstLine,
+		outBuf.String(),
+	)
+}
+
+func buildCommitMessageFirstLine(envs []string, commandArgs []string) string {
 	commandParts := make([]string, len(commandArgs))
 	for i, arg := range commandArgs {
 		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
@@ -86,10 +94,9 @@ func buildCommitMessage(envs []string, commandArgs []string, outBuf *bytes.Buffe
 		}
 	}
 
-	return fmt.Sprintf("%s %s %s\n\n%s\n",
+	return fmt.Sprintf("%s %s %s",
 		commitPrefix,
 		strings.Join(envs, " "),
 		strings.Join(commandParts, " "),
-		outBuf.String(),
 	)
 }
