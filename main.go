@@ -50,7 +50,7 @@ func main() {
 
 	commandParts := make([]string, len(commandArgs))
 	for i, arg := range commandArgs {
-		if strings.Contains(arg, " ") {
+		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
 			commandParts[i] = fmt.Sprintf("'%s'", arg)
 		} else {
 			commandParts[i] = arg
