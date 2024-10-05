@@ -55,7 +55,12 @@ func main() {
 		return
 	}
 
-	if !hasDiff(false) {
+	diff, err := hasDiff()
+	if err != nil {
+		fmt.Printf("git diff failed: %+v\n", err)
+		return
+	}
+	if !diff {
 		fmt.Printf("No changes to commit\n%s", command.Output)
 		return
 	}

@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"os/exec"
 )
 
-func hasDiff(showOutput bool) bool {
-	output, err := exec.Command("git", "diff", "--exit-code").CombinedOutput()
+func hasDiff() (bool, error) {
+	output, err := exec.Command("git", "diff").CombinedOutput()
 	if err != nil {
-		if showOutput {
-			fmt.Println(string(output))
-		}
-		return true
+		return false, err
 	}
-	return false
+	return len(bytes.TrimSpace(output)) > 0, nil
 }
