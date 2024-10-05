@@ -27,7 +27,7 @@ func main() {
 		return
 	}
 
-	if err := exec.Command("git", "diff", "--exit-code").Run(); err == nil {
+	if !hasDiff() {
 		fmt.Printf("No changes to commit\n%s", command.Output.String())
 		return
 	}
