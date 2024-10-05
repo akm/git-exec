@@ -51,12 +51,12 @@ func main() {
 	command := newCommand(commandArgs)
 
 	if err := command.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output.String())
+		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output)
 		return
 	}
 
 	if !hasDiff(false) {
-		fmt.Printf("No changes to commit\n%s", command.Output.String())
+		fmt.Printf("No changes to commit\n%s", command.Output)
 		return
 	}
 
