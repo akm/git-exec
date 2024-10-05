@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -16,11 +15,11 @@ var commitPrefix = func() string {
 	return "🤖 @%s $"
 }()
 
-func buildCommitMessage(envs []string, commandArgs []string, outBuf *bytes.Buffer) string {
-	firstLine := buildCommitMessageFirstLine(envs, commandArgs)
+func buildCommitMessage(command *Command) string {
+	firstLine := buildCommitMessageFirstLine(command.Envs, command.Args)
 	return fmt.Sprintf("%s\n\n%s\n",
 		firstLine,
-		outBuf.String(),
+		command.Output.String(),
 	)
 }
 

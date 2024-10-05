@@ -21,22 +21,15 @@ func main() {
 		return
 	}
 
-	envs, commandArgs := splitArgsToEnvsAndCommand(os.Args[1:])
+	command := newCommand(os.Args[1:])
 
-	// 1. このプログラムに渡された引数をコマンドとして実行する。
-	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Env = append(os.Environ(), envs...)
-	var outBuf bytes.Buffer
-	cmd.Stdout = &outBuf
-	cmd.Stderr = &outBuf
-
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n%s", err, outBuf.String())
+	if err := command.Run(); err != nil {
+		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output.String())
 		return
 	}
 
 	if err := exec.Command("git", "diff", "--exit-code").Run(); err == nil {
-		fmt.Printf("No changes to commit\n%s", outBuf.String())
+		fmt.Printf("No changes to commit\n%s", command.Output.String())
 		return
 	}
 
@@ -47,7 +40,7 @@ func main() {
 	}
 
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage := buildCommitMessage(envs, commandArgs, &outBuf)
+	commitMessage := buildCommitMessage(command)
 
 	// See https://tracpath.com/docs/git-commit/
 	commitCmd := exec.Command("git", "commit", "--file", "-")
