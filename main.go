@@ -20,6 +20,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	options, commandArgs := splitToOptionsAndCommandArgs(os.Args[1:])
+	for _, option := range options {
+		switch option {
+		case "-h", "--help":
+			help()
+			os.Exit(0)
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", option)
+		}
+	}
+
 	if err := guard(); err != nil {
 		if isGuardError(err) {
 			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
@@ -29,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	command := newCommand(os.Args[1:])
+	command := newCommand(commandArgs)
 
 	if err := command.Run(); err != nil {
 		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output.String())
