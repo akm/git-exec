@@ -16,8 +16,8 @@ func main() {
 	//    標準入力: "🤖 (実行したコマンド)\n\n(バッファ)"
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: git-exec <command>")
-		return
+		help()
+		os.Exit(1)
 	}
 
 	if err := guard(); err != nil {
