@@ -1,12 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"os/exec"
 )
 
-func hasDiff() bool {
-	if err := exec.Command("git", "diff", "--exit-code").Run(); err == nil {
-		return false
+func hasDiff(showOutput bool) bool {
+	output, err := exec.Command("git", "diff", "--exit-code").CombinedOutput()
+	if err != nil {
+		if showOutput {
+			fmt.Println(string(output))
+		}
+		return true
 	}
-	return true
+	return false
 }

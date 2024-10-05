@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	if !hasDiff() {
+	if !hasDiff(false) {
 		fmt.Printf("No changes to commit\n%s", command.Output.String())
 		return
 	}
