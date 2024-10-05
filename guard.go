@@ -1,10 +1,5 @@
 package main
 
-import (
-	"bytes"
-	"os/exec"
-)
-
 type guardError struct {
 	message string
 }
@@ -64,13 +59,4 @@ func guardUntrackedFiles() error {
 		return &guardError{"There are untracked files"}
 	}
 	return nil
-}
-
-func hasUntrackedFiles() (bool, error) {
-	cmd := exec.Command("git", "ls-files", "--others", "--exclude-standard")
-	output, err := cmd.Output()
-	if err != nil {
-		return false, err
-	}
-	return len(bytes.TrimSpace(output)) > 0, nil
 }
