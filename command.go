@@ -31,16 +31,13 @@ func (c *Command) Run() error {
 }
 
 func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
-	var envs []string
-	var command []string
 	equalNotFound := false
-	for _, arg := range args {
+	return splitStringsInto2(args, func(arg string) bool {
 		if !equalNotFound && strings.Contains(arg, "=") {
-			envs = append(envs, arg)
+			return true
 		} else {
 			equalNotFound = true
-			command = append(command, arg)
+			return false
 		}
-	}
-	return envs, command
+	})
 }
