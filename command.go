@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"os"
 	"os/exec"
 	"strings"
@@ -10,24 +9,26 @@ import (
 type Command struct {
 	Envs   []string
 	Args   []string
-	Output *bytes.Buffer
+	Output string
 }
 
 func newCommand(args []string) *Command {
 	envs, commandArgs := splitArgsToEnvsAndCommand(args)
 	return &Command{
-		Envs:   envs,
-		Args:   commandArgs,
-		Output: &bytes.Buffer{},
+		Envs: envs,
+		Args: commandArgs,
 	}
 }
 
 func (c *Command) Run() error {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
-	cmd.Stdout = c.Output
-	cmd.Stderr = c.Output
-	return cmd.Run()
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	c.Output = string(output)
+	return nil
 }
 
 func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {

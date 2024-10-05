@@ -51,12 +51,23 @@ func main() {
 	command := newCommand(commandArgs)
 
 	if err := command.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output.String())
+		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output)
 		return
 	}
 
-	if !hasDiff() {
-		fmt.Printf("No changes to commit\n%s", command.Output.String())
+	uncommitedChanges, err := hasUncommittedChanges()
+	if err != nil {
+		fmt.Printf("git diff failed: %+v\n", err)
+		return
+	}
+	untrackedFiles, err := hasUntrackedFiles()
+	if err != nil {
+		fmt.Printf("git ls-files failed: %+v\n", err)
+		return
+	}
+
+	if !uncommitedChanges && !untrackedFiles {
+		fmt.Printf("No changes to commit and No untracked files\n")
 		return
 	}
 

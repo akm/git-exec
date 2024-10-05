@@ -17,10 +17,11 @@ var commitPrefix = func() string {
 
 func buildCommitMessage(command *Command) string {
 	firstLine := buildCommitMessageFirstLine(command.Envs, command.Args)
-	return fmt.Sprintf("%s\n\n%s\n",
-		firstLine,
-		command.Output.String(),
-	)
+	if command.Output == "" {
+		return firstLine
+	} else {
+		return fmt.Sprintf("%s\n\n%s\n", firstLine, command.Output)
+	}
 }
 
 func buildCommitMessageFirstLine(envs []string, commandArgs []string) string {
