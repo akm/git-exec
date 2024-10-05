@@ -60,8 +60,14 @@ func main() {
 		fmt.Printf("git diff failed: %+v\n", err)
 		return
 	}
-	if !uncommitedChanges {
-		fmt.Printf("No changes to commit\n%s", command.Output)
+	untrackedFiles, err := hasUntrackedFiles()
+	if err != nil {
+		fmt.Printf("git ls-files failed: %+v\n", err)
+		return
+	}
+
+	if !uncommitedChanges && !untrackedFiles {
+		fmt.Printf("No changes to commit and No untracked files\n")
 		return
 	}
 
