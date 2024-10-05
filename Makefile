@@ -19,7 +19,7 @@ lint: $(GOLANGCI_LINT)
 	$(GOLANGCI_LINT) run ./...
 
 VERSION_FILE=version.go
-VERSION = $(shell cat $(VERSION_FILE) | grep 'const Version' | cut -d '=' -f 2)
+VERSION = $(shell cat $(VERSION_FILE) | grep 'const Version' | cut -d '"' -f 2)
 
 .PHONY: version
 version:
