@@ -2,17 +2,26 @@ package main
 
 import "strings"
 
-func splitToOptionsAndCommandArgs(args []string) ([]string, []string) {
-	var options []string
-	var commandArgs []string
-	inOptions := true
+func splitStringsInto2(args []string, fn func(string) bool) ([]string, []string) {
+	var a, b []string
 	for _, arg := range args {
-		if inOptions && strings.HasPrefix(arg, "-") {
-			options = append(options, arg)
+		if fn(arg) {
+			a = append(a, arg)
 		} else {
-			inOptions = false
-			commandArgs = append(commandArgs, arg)
+			b = append(b, arg)
 		}
 	}
-	return options, commandArgs
+	return a, b
+}
+
+func splitToOptionsAndCommandArgs(args []string) ([]string, []string) {
+	inOptions := true
+	return splitStringsInto2(args, func(arg string) bool {
+		if inOptions && strings.HasPrefix(arg, "-") {
+			return true
+		} else {
+			inOptions = false
+			return false
+		}
+	})
 }
