@@ -42,7 +42,7 @@ func guardUncommitedChanges() error {
 	if getEnvBool("GIT_EXEC_SKIP_GUARD") || getEnvBool("GIT_EXEC_SKIP_GUARD_UNCOMMITED_CHANGES") {
 		return nil
 	}
-	diff, err := hasDiff()
+	diff, err := hasUncommittedChanges()
 	if err != nil {
 		return err
 	}

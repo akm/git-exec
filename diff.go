@@ -5,7 +5,7 @@ import (
 	"os/exec"
 )
 
-func hasDiff() (bool, error) {
+func hasUncommittedChanges() (bool, error) {
 	output, err := exec.Command("git", "diff").CombinedOutput()
 	if err != nil {
 		return false, err

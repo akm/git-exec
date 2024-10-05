@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	diff, err := hasDiff()
+	diff, err := hasUncommittedChanges()
 	if err != nil {
 		fmt.Printf("git diff failed: %+v\n", err)
 		return
