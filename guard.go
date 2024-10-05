@@ -28,7 +28,7 @@ func guard() error {
 	// GIT_EXEC_SKIP_GUARD あるいは GIT_EXEC_SKIP_GUARD_UNCOMMITED_CHANGES のいずれかが true でなければ、コミットされていない変更があればエラーを返す
 	// GIT_EXEC_SKIP_GUARD あるいは GIT_EXEC_SKIP_GUARD_UNTRACKED_FILES のいずれかが true でなければ、追跡されていないファイルがあればエラーを返す
 
-	if err := guardUncommitedFiles(); err != nil {
+	if err := guardUncommitedChanges(); err != nil {
 		return err
 	}
 	if err := guardUntrackedFiles(); err != nil {
@@ -38,7 +38,7 @@ func guard() error {
 	return nil
 }
 
-func guardUncommitedFiles() error {
+func guardUncommitedChanges() error {
 	if getEnvBool("GIT_EXEC_SKIP_GUARD") || getEnvBool("GIT_EXEC_SKIP_GUARD_UNCOMMITED_CHANGES") {
 		return nil
 	}
