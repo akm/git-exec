@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func main() {
@@ -26,6 +27,13 @@ func main() {
 		case "-h", "--help":
 			help()
 			os.Exit(0)
+		case "-v", "--version":
+			if len(commandArgs) == 0 {
+				showVersion()
+				os.Exit(0)
+			} else {
+				showVersionWithExecName(filepath.Base(os.Args[0]))
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", option)
 		}
