@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Command struct {
@@ -27,4 +28,19 @@ func (c *Command) Run() error {
 	cmd.Stdout = c.Output
 	cmd.Stderr = c.Output
 	return cmd.Run()
+}
+
+func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
+	var envs []string
+	var command []string
+	equalNotFound := false
+	for _, arg := range args {
+		if !equalNotFound && strings.Contains(arg, "=") {
+			envs = append(envs, arg)
+		} else {
+			equalNotFound = true
+			command = append(command, arg)
+		}
+	}
+	return envs, command
 }
