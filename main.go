@@ -20,6 +20,15 @@ func main() {
 		return
 	}
 
+	if err := guard(); err != nil {
+		if isGuardError(err) {
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		} else {
+			fmt.Printf("Guard failed: %+v\n", err)
+		}
+		os.Exit(1)
+	}
+
 	command := newCommand(os.Args[1:])
 
 	if err := command.Run(); err != nil {
