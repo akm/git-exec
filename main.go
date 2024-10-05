@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func main() {
@@ -16,8 +17,26 @@ func main() {
 	//    標準入力: "🤖 (実行したコマンド)\n\n(バッファ)"
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: git-exec <command>")
-		return
+		help()
+		os.Exit(1)
+	}
+
+	options, commandArgs := splitToOptionsAndCommandArgs(os.Args[1:])
+	for _, option := range options {
+		switch option {
+		case "-h", "--help":
+			help()
+			os.Exit(0)
+		case "-v", "--version":
+			if len(commandArgs) == 0 {
+				showVersion()
+				os.Exit(0)
+			} else {
+				showVersionWithExecName(filepath.Base(os.Args[0]))
+			}
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", option)
+		}
 	}
 
 	if err := guard(); err != nil {
@@ -29,7 +48,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	command := newCommand(os.Args[1:])
+	command := newCommand(commandArgs)
 
 	if err := command.Run(); err != nil {
 		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output.String())
