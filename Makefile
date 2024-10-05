@@ -19,7 +19,7 @@ lint: $(GOLANGCI_LINT)
 	$(GOLANGCI_LINT) run ./...
 
 VERSION_FILE=version.go
-VERSION = $(shell cat $(VERSION_FILE) | grep 'const Version' | cut -d '"' -f 2)
+VERSION = $(shell cat $(VERSION_FILE) | grep 'const Version' | cut -d '=' -f 2)
 
 .PHONY: version
 version:
@@ -29,3 +29,4 @@ VERSION_TAG_NAME = v$(VERSION)
 .PHONY: tag_push
 tag_push:
 	git tag $(VERSION_TAG_NAME)
+	git push origin $(VERSION_TAG_NAME)
