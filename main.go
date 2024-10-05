@@ -39,7 +39,12 @@ func main() {
 	cmd.Stderr = &outBuf
 
 	if err := cmd.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n", err)
+		fmt.Printf("Command execution failed: %+v\n%s", err, outBuf.String())
+		return
+	}
+
+	if err := exec.Command("git", "diff", "--exit-code").Run(); err == nil {
+		fmt.Printf("No changes to commit\n%s", outBuf.String())
 		return
 	}
 
