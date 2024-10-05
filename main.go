@@ -43,6 +43,11 @@ func main() {
 		return
 	}
 
+	if err := exec.Command("git", "diff", "--exit-code").Run(); err == nil {
+		fmt.Printf("No changes to commit\n%s\n", outBuf.String())
+		return
+	}
+
 	// 2. "git add ." を実行し、コマンドによって作成・変更されたカレントディレクトリ以下のファイルを staging area に追加する。
 	if err := exec.Command("git", "add", ".").Run(); err != nil {
 		fmt.Printf("git add failed: %+v\n", err)
