@@ -39,7 +39,7 @@ func main() {
 	cmd.Stderr = &outBuf
 
 	if err := cmd.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n", err)
+		fmt.Printf("Command execution failed: %+v\n%s\n", err, outBuf.String())
 		return
 	}
 
