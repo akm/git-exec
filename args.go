@@ -44,5 +44,8 @@ func splitToOptionsAndCommandArgs(args []string) (Options, []string, error) {
 			}
 		}
 	}
+	if waitingOption != nil {
+		return nil, nil, fmt.Errorf("no value given for option %s", waitingOption.Type.LongName)
+	}
 	return options, commandArgs, nil
 }

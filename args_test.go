@@ -21,8 +21,20 @@ func TestSplitToOptionsAndCommandArgs(t *testing.T) {
 			"",
 		},
 		{
+			[]string{"-C", "foo", "key1=val1", "key2=val2", "command", "--arg1", "arg2"},
+			Options{&Option{Type: optDirectory, Value: "foo"}},
+			[]string{"key1=val1", "key2=val2", "command", "--arg1", "arg2"},
+			"",
+		},
+		{
 			[]string{"-v", "-h", "command", "--arg1", "arg2"},
 			Options{&Option{Type: optVersion}, &Option{Type: optHelp}},
+			[]string{"command", "--arg1", "arg2"},
+			"",
+		},
+		{
+			[]string{"--directory", "bar", "command", "--arg1", "arg2"},
+			Options{&Option{Type: optDirectory, Value: "bar"}},
 			[]string{"command", "--arg1", "arg2"},
 			"",
 		},
@@ -39,10 +51,28 @@ func TestSplitToOptionsAndCommandArgs(t *testing.T) {
 			"",
 		},
 		{
+			[]string{"--directory", "baz", "command"},
+			Options{&Option{Type: optDirectory, Value: "baz"}},
+			[]string{"command"},
+			"",
+		},
+		{
+			[]string{"--directory", "baz", "-v", "command"},
+			Options{&Option{Type: optDirectory, Value: "baz"}, &Option{Type: optVersion}},
+			[]string{"command"},
+			"",
+		},
+		{
 			[]string{"--version"},
 			Options{&Option{Type: optVersion}},
 			[]string{},
 			"",
+		},
+		{
+			[]string{"--directory"},
+			nil,
+			nil,
+			"no value given for option --directory",
 		},
 		{
 			[]string{"-h"},
@@ -60,7 +90,9 @@ func TestSplitToOptionsAndCommandArgs(t *testing.T) {
 			if ptn.error == "" {
 				assert.Nil(t, err)
 			} else {
-				assert.Equal(t, ptn.error, err.Error())
+				if assert.NotNil(t, err) {
+					assert.Equal(t, ptn.error, err.Error())
+				}
 			}
 		})
 	}
