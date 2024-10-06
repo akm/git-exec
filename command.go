@@ -25,6 +25,7 @@ func newCommand(args []string) *Command {
 func (c *Command) Run() error {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
+	cmd.Stdin = os.Stdin
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &buf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
