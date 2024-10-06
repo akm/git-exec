@@ -21,13 +21,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	options, commandArgs := splitToOptionsAndCommandArgs(os.Args[1:])
+	options, commandArgs, err := splitToOptionsAndCommandArgs(os.Args[1:])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
+	}
 	for _, option := range options {
-		switch option {
-		case "-h", "--help":
+		switch option.Type {
+		case optHelp:
 			help()
 			os.Exit(0)
-		case "-v", "--version":
+		case optVersion:
 			if len(commandArgs) == 0 {
 				showVersion()
 				os.Exit(0)
@@ -35,7 +38,7 @@ func main() {
 				showVersionWithExecName(filepath.Base(os.Args[0]))
 			}
 		default:
-			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", option)
+			fmt.Fprintf(os.Stderr, "Unknown option: %+v\n", option)
 		}
 	}
 
