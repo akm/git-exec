@@ -10,46 +10,90 @@ import (
 func TestSplitToOptionsAndCommandArgs(t *testing.T) {
 	patterns := []struct {
 		args        []string
-		options     []string
+		options     Options
 		commandArgs []string
+		error       string
 	}{
 		{
-			[]string{"-a", "-b", "key1=val1", "key2=val2", "command", "--arg1", "arg2"},
-			[]string{"-a", "-b"},
+			[]string{"-h", "-v", "key1=val1", "key2=val2", "command", "--arg1", "arg2"},
+			Options{&Option{Type: optHelp}, &Option{Type: optVersion}},
 			[]string{"key1=val1", "key2=val2", "command", "--arg1", "arg2"},
+			"",
 		},
 		{
-			[]string{"-a", "-b", "command", "--arg1", "arg2"},
-			[]string{"-a", "-b"},
+			[]string{"-C", "foo", "key1=val1", "key2=val2", "command", "--arg1", "arg2"},
+			Options{&Option{Type: optDirectory, Value: "foo"}},
+			[]string{"key1=val1", "key2=val2", "command", "--arg1", "arg2"},
+			"",
+		},
+		{
+			[]string{"-v", "-h", "command", "--arg1", "arg2"},
+			Options{&Option{Type: optVersion}, &Option{Type: optHelp}},
 			[]string{"command", "--arg1", "arg2"},
+			"",
 		},
 		{
-			[]string{"-a", "-b", "key1=val1", "key2=val2", "command"},
-			[]string{"-a", "-b"},
+			[]string{"--directory", "bar", "command", "--arg1", "arg2"},
+			Options{&Option{Type: optDirectory, Value: "bar"}},
+			[]string{"command", "--arg1", "arg2"},
+			"",
+		},
+		{
+			[]string{"-h", "-v", "key1=val1", "key2=val2", "command"},
+			Options{&Option{Type: optHelp}, &Option{Type: optVersion}},
 			[]string{"key1=val1", "key2=val2", "command"},
+			"",
 		},
 		{
 			[]string{"command", "--arg1", "arg2"},
-			nil,
+			Options{},
 			[]string{"command", "--arg1", "arg2"},
+			"",
+		},
+		{
+			[]string{"--directory", "baz", "command"},
+			Options{&Option{Type: optDirectory, Value: "baz"}},
+			[]string{"command"},
+			"",
+		},
+		{
+			[]string{"--directory", "baz", "-v", "command"},
+			Options{&Option{Type: optDirectory, Value: "baz"}, &Option{Type: optVersion}},
+			[]string{"command"},
+			"",
 		},
 		{
 			[]string{"--version"},
-			[]string{"--version"},
+			Options{&Option{Type: optVersion}},
+			[]string{},
+			"",
+		},
+		{
+			[]string{"--directory"},
 			nil,
+			nil,
+			"no value given for option --directory",
 		},
 		{
 			[]string{"-h"},
-			[]string{"-h"},
-			nil,
+			Options{&Option{Type: optHelp}},
+			[]string{},
+			"",
 		},
 	}
 
 	for i, ptn := range patterns {
 		t.Run(fmt.Sprintf("pattern %d", i), func(t *testing.T) {
-			options, commandArgs := splitToOptionsAndCommandArgs(ptn.args)
+			options, commandArgs, err := splitToOptionsAndCommandArgs(ptn.args)
 			assert.Equal(t, ptn.options, options)
 			assert.Equal(t, ptn.commandArgs, commandArgs)
+			if ptn.error == "" {
+				assert.Nil(t, err)
+			} else {
+				if assert.NotNil(t, err) {
+					assert.Equal(t, ptn.error, err.Error())
+				}
+			}
 		})
 	}
 

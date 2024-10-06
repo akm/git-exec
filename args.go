@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 func splitStringsInto2(args []string, fn func(string) bool) ([]string, []string) {
 	var a, b []string
@@ -14,14 +17,35 @@ func splitStringsInto2(args []string, fn func(string) bool) ([]string, []string)
 	return a, b
 }
 
-func splitToOptionsAndCommandArgs(args []string) ([]string, []string) {
+func splitToOptionsAndCommandArgs(args []string) (Options, []string, error) {
+	options := Options{}
+	commandArgs := []string{}
 	inOptions := true
-	return splitStringsInto2(args, func(arg string) bool {
+	var waitingOption *Option
+	for _, arg := range args {
 		if inOptions && strings.HasPrefix(arg, "-") {
-			return true
+			optionType, ok := optionKeyMap[arg]
+			if !ok {
+				return nil, nil, fmt.Errorf("Unknown option: %s", arg)
+			}
+			if optionType.HasValue {
+				waitingOption = &Option{Type: optionType}
+			} else {
+				options = append(options, &Option{Type: optionType})
+			}
 		} else {
-			inOptions = false
-			return false
+			if waitingOption != nil {
+				waitingOption.Value = arg
+				options = append(options, waitingOption)
+				waitingOption = nil
+			} else {
+				inOptions = false
+				commandArgs = append(commandArgs, arg)
+			}
 		}
-	})
+	}
+	if waitingOption != nil {
+		return nil, nil, fmt.Errorf("no value given for option %s", waitingOption.Type.LongName)
+	}
+	return options, commandArgs, nil
 }
