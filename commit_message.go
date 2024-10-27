@@ -19,13 +19,27 @@ type commitMessage struct {
 	Body     string
 }
 
-func newCommitMessage(location, env, command string) *commitMessage {
+func newCommitMessage(command *Command) *commitMessage {
+	commandParts := make([]string, len(command.Args))
+	for i, arg := range command.Args {
+		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
+			commandParts[i] = fmt.Sprintf("'%s'", arg)
+		} else {
+			commandParts[i] = arg
+		}
+	}
+
+	envs := []string{}
+	if len(command.Envs) > 0 {
+		envs = append(envs, strings.Join(command.Envs, " "))
+	}
+
 	return &commitMessage{
-		Env:      env,
-		Emoji:    getEnvString("GIT_EXEC_EMOJI", "🤖"),
-		Location: location,
-		Prompt:   getEnvString("GIT_EXEC_PROMPT", "$"),
-		Command:  command,
+		Env:     strings.Join(envs, " "),
+		Emoji:   getEnvString("GIT_EXEC_EMOJI", "🤖"),
+		Prompt:  getEnvString("GIT_EXEC_PROMPT", "$"),
+		Command: strings.Join(commandParts, " "),
+		Body:    command.Output,
 	}
 }
 
@@ -37,27 +51,13 @@ func newTemplate() (*template.Template, error) {
 }
 
 func buildCommitMessage(command *Command) (string, error) {
-	commandParts := make([]string, len(command.Args))
-	for i, arg := range command.Args {
-		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
-			commandParts[i] = fmt.Sprintf("'%s'", arg)
-		} else {
-			commandParts[i] = arg
-		}
-	}
-
 	location, err := getLocation()
 	if err != nil {
 		return "", err
 	}
 
-	envs := []string{}
-	if len(command.Envs) > 0 {
-		envs = append(envs, strings.Join(command.Envs, " "))
-	}
-
-	msg := newCommitMessage(location, strings.Join(envs, " "), strings.Join(commandParts, " "))
-	msg.Body = command.Output
+	msg := newCommitMessage(command)
+	msg.Location = location
 
 	tmpl, err := newTemplate()
 	if err != nil {
