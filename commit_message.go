@@ -45,34 +45,32 @@ func newCommitMessage(command *Command) *commitMessage {
 
 const defaultHeadTemplateSurce = `{{.Emoji}} @{{.Location}} {{.Prompt}} {{.Command}}`
 
-func newTemplate() (*template.Template, error) {
+func (*commitMessage) newTemplate() (*template.Template, error) {
 	source := getEnvString("GIT_EXEC_TEMPLATE", defaultHeadTemplateSurce)
 	return template.New("commitMessage").Parse(source + "\n\n{{.Body}}\n")
 }
 
-func buildCommitMessage(command *Command) (string, error) {
-	location, err := getLocation()
+func (m *commitMessage) Build() (string, error) {
+	location, err := m.getLocation()
 	if err != nil {
 		return "", err
 	}
+	m.Location = location
 
-	msg := newCommitMessage(command)
-	msg.Location = location
-
-	tmpl, err := newTemplate()
+	tmpl, err := m.newTemplate()
 	if err != nil {
 		return "", err
 	}
 
 	buf := bytes.NewBuffer(nil)
-	if err := tmpl.Execute(buf, msg); err != nil {
+	if err := tmpl.Execute(buf, m); err != nil {
 		return "", err
 	}
 
 	return buf.String(), nil
 }
 
-func getLocation() (string, error) {
+func (*commitMessage) getLocation() (string, error) {
 	curDir, err := os.Getwd()
 	if err != nil {
 		return "", err
