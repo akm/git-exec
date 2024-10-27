@@ -1,32 +1,44 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
-var commitPrefix = func() string {
-	if prefix := os.Getenv("GIT_EXEC_COMMIT_PREFIX"); prefix != "" {
-		return prefix
-	}
-	return "🤖 @%s $"
-}()
+type commitMessage struct {
+	Env      string
+	Emoji    string
+	Location string
+	Prompt   string
+	Command  string
+	Body     string
+}
 
-func buildCommitMessage(command *Command) string {
-	firstLine := buildCommitMessageFirstLine(command.Envs, command.Args)
-	if command.Output == "" {
-		return firstLine
-	} else {
-		return fmt.Sprintf("%s\n\n%s\n", firstLine, command.Output)
+func newCommitMessage(location, env, command string) *commitMessage {
+	return &commitMessage{
+		Env:      env,
+		Emoji:    getEnvString("GIT_EXEC_EMOJI", "🤖"),
+		Location: location,
+		Prompt:   getEnvString("GIT_EXEC_PROMPT", "$"),
+		Command:  command,
 	}
 }
 
-func buildCommitMessageFirstLine(envs []string, commandArgs []string) string {
-	commandParts := make([]string, len(commandArgs))
-	for i, arg := range commandArgs {
+const defaultHeadTemplateSurce = `{{.Emoji}} @{{.Location}} {{.Prompt}} {{.Command}}`
+
+func newTemplate() (*template.Template, error) {
+	source := getEnvString("GIT_EXEC_TEMPLATE", defaultHeadTemplateSurce)
+	return template.New("commitMessage").Parse(source + "\n\n{{.Body}}\n")
+}
+
+func buildCommitMessage(command *Command) (string, error) {
+	commandParts := make([]string, len(command.Args))
+	for i, arg := range command.Args {
 		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
 			commandParts[i] = fmt.Sprintf("'%s'", arg)
 		} else {
@@ -34,21 +46,33 @@ func buildCommitMessageFirstLine(envs []string, commandArgs []string) string {
 		}
 	}
 
-	head, err := buildCommitMessageHead()
+	location, err := getLocation()
 	if err != nil {
-		fmt.Printf("Failed to build commit prefix: %+v\n", err)
-		panic(err)
+		return "", err
 	}
 
-	parts := []string{head}
-	if len(envs) > 0 {
-		parts = append(parts, strings.Join(envs, " "))
+	envs := []string{}
+	if len(command.Envs) > 0 {
+		envs = append(envs, strings.Join(command.Envs, " "))
 	}
-	parts = append(parts, strings.Join(commandParts, " "))
-	return strings.Join(parts, " ")
+
+	msg := newCommitMessage(location, strings.Join(envs, " "), strings.Join(commandParts, " "))
+	msg.Body = command.Output
+
+	tmpl, err := newTemplate()
+	if err != nil {
+		return "", err
+	}
+
+	buf := bytes.NewBuffer(nil)
+	if err := tmpl.Execute(buf, msg); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
-func buildCommitMessageHead() (string, error) {
+func getLocation() (string, error) {
 	curDir, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -64,18 +88,15 @@ func buildCommitMessageHead() (string, error) {
 		return "", err
 	}
 
-	var location string
 	if relPath == "." {
-		location = rootDirName
+		return rootDirName, nil
 	} else if strings.HasPrefix(relPath, "./") {
-		location = rootDirName + relPath[1:]
+		return rootDirName + relPath[1:], nil
 	} else if strings.HasPrefix(relPath, "/") {
-		location = relPath
+		return relPath, nil
 	} else {
-		location = rootDirName + "/" + relPath
+		return rootDirName + "/" + relPath, nil
 	}
-
-	return fmt.Sprintf(commitPrefix, location), nil
 }
 
 func gitRootDir() (string, error) {
