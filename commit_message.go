@@ -3,9 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -51,7 +48,7 @@ func (*commitMessage) newTemplate() (*template.Template, error) {
 }
 
 func (m *commitMessage) Build() (string, error) {
-	location, err := m.getLocation()
+	location, err := getLocation()
 	if err != nil {
 		return "", err
 	}
@@ -68,39 +65,4 @@ func (m *commitMessage) Build() (string, error) {
 	}
 
 	return buf.String(), nil
-}
-
-func (*commitMessage) getLocation() (string, error) {
-	curDir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	rootDir, err := gitRootDir()
-	if err != nil {
-		return "", err
-	}
-	rootDirName := filepath.Base(rootDir)
-
-	relPath, err := filepath.Rel(rootDir, curDir)
-	if err != nil {
-		return "", err
-	}
-
-	if relPath == "." {
-		return rootDirName, nil
-	} else if strings.HasPrefix(relPath, "./") {
-		return rootDirName + relPath[1:], nil
-	} else if strings.HasPrefix(relPath, "/") {
-		return relPath, nil
-	} else {
-		return rootDirName + "/" + relPath, nil
-	}
-}
-
-func gitRootDir() (string, error) {
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(out)), nil
 }
