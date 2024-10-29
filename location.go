@@ -7,7 +7,11 @@ import (
 	"strings"
 )
 
-func getLocation() (string, error) {
+type locationFunc func() (string, error)
+
+var getLocation locationFunc = getLocationFromGitRoot
+
+func getLocationFromGitRoot() (string, error) {
 	curDir, err := os.Getwd()
 	if err != nil {
 		return "", err
