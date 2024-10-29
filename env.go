@@ -14,3 +14,11 @@ func getEnvBool(key string) bool {
 		return false
 	}
 }
+
+func getEnvString(key string, defaultValue string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		return defaultValue
+	}
+	return v
+}
