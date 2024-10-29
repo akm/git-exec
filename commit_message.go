@@ -17,12 +17,12 @@ type commitMessage struct {
 }
 
 func newCommitMessage(command *Command) *commitMessage {
-	commandParts := make([]string, len(command.Args))
+	argParts := make([]string, len(command.Args))
 	for i, arg := range command.Args {
 		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
-			commandParts[i] = fmt.Sprintf("'%s'", arg)
+			argParts[i] = fmt.Sprintf("'%s'", arg)
 		} else {
-			commandParts[i] = arg
+			argParts[i] = arg
 		}
 	}
 
@@ -30,6 +30,8 @@ func newCommitMessage(command *Command) *commitMessage {
 	if len(command.Envs) > 0 {
 		envs = append(envs, strings.Join(command.Envs, " "))
 	}
+
+	commandParts := append(envs, argParts...)
 
 	return &commitMessage{
 		Env:     strings.Join(envs, " "),
@@ -64,5 +66,5 @@ func (m *commitMessage) Build() (string, error) {
 		return "", err
 	}
 
-	return buf.String(), nil
+	return strings.TrimSpace(buf.String()), nil
 }
