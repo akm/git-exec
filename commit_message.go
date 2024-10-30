@@ -42,7 +42,7 @@ func newCommitMessage(command *Command) *commitMessage {
 	}
 }
 
-const defaultHeadTemplateSurce = `{{.Emoji}} @{{.Location}} {{.Prompt}} {{.Command}}`
+const defaultHeadTemplateSurce = `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`
 
 func (*commitMessage) newTemplate() (*template.Template, error) {
 	source := getEnvString("GIT_EXEC_TEMPLATE", defaultHeadTemplateSurce)
