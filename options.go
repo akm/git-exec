@@ -35,18 +35,21 @@ func (o *OptionType) setValue(opts *Options, value string) {
 }
 
 var (
-	optHelp      = newOptionType("-h", "--help", false, func(opts *Options, _ string) { opts.Help = true })
-	optVersion   = newOptionType("-v", "--version", false, func(opts *Options, _ string) { opts.Version = true })
-	optDirectory = newOptionType("-C", "--directory", true, func(opts *Options, value string) { opts.Directory = value })
-	optEmoji     = newOptionType("-e", "--emoji", true, func(opts *Options, value string) { opts.Emoji = value })
-	optPrompt    = newOptionType("-p", "--prompt", true, func(opts *Options, value string) { opts.Prompt = value })
-	optTemplate  = newOptionType("-t", "--template", true, func(opts *Options, value string) { opts.Template = value })
+	optHelp      = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true })
+	optVersion   = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true })
+	optDirectory = newOptionType("-C", "--directory", true, func(o *Options, v string) { o.Directory = v })
+	optEmoji     = newOptionType("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
+	optPrompt    = newOptionType("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
+	optTemplate  = newOptionType("-t", "--template", true, func(o *Options, v string) { o.Template = v })
 )
 
 var optionTypes = []*OptionType{
 	optHelp,
 	optVersion,
 	optDirectory,
+	optEmoji,
+	optPrompt,
+	optTemplate,
 }
 
 var optionKeyMap = func() map[string]*OptionType {
