@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -12,6 +13,17 @@ type Options struct {
 	Emoji     string
 	Prompt    string
 	Template  string
+}
+
+func newOptions() *Options {
+	r := &Options{}
+	for _, opt := range optionTypes {
+		if !opt.HasValue {
+			continue
+		}
+		opt.setValue(r, os.Getenv(opt.envKey()))
+	}
+	return r
 }
 
 type OptionType struct {
@@ -32,6 +44,12 @@ func newOptionType(shortName, longName string, hasValue bool, setFunc func(*Opti
 
 func (o *OptionType) setValue(opts *Options, value string) {
 	o.SetFunc(opts, value)
+}
+
+const envKeyPrefix = "GIT_EXEC_"
+
+func (o *OptionType) envKey() string {
+	return envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }
 
 var (
@@ -62,7 +80,7 @@ var optionKeyMap = func() map[string]*OptionType {
 }()
 
 func parseOptions(args []string) (*Options, []string, error) {
-	options := &Options{}
+	options := newOptions()
 	commandArgs := []string{}
 	inOptions := true
 	var pendingOptionType *OptionType
