@@ -10,67 +10,67 @@ import (
 func TestParseOptions(t *testing.T) {
 	patterns := []struct {
 		args        []string
-		options     Options
+		options     *Options
 		commandArgs []string
 		error       string
 	}{
 		{
 			[]string{"-h", "-v", "key1=val1", "key2=val2", "command", "--arg1", "arg2"},
-			Options{&Option{Type: optHelp}, &Option{Type: optVersion}},
+			&Options{Help: true, Version: true},
 			[]string{"key1=val1", "key2=val2", "command", "--arg1", "arg2"},
 			"",
 		},
 		{
 			[]string{"-C", "foo", "key1=val1", "key2=val2", "command", "--arg1", "arg2"},
-			Options{&Option{Type: optDirectory, Value: "foo"}},
+			&Options{Directory: "foo"},
 			[]string{"key1=val1", "key2=val2", "command", "--arg1", "arg2"},
 			"",
 		},
 		{
 			[]string{"-v", "-h", "command", "--arg1", "arg2"},
-			Options{&Option{Type: optVersion}, &Option{Type: optHelp}},
+			&Options{Version: true, Help: true},
 			[]string{"command", "--arg1", "arg2"},
 			"",
 		},
 		{
 			[]string{"--directory", "bar", "command", "--arg1", "arg2"},
-			Options{&Option{Type: optDirectory, Value: "bar"}},
+			&Options{Directory: "bar"},
 			[]string{"command", "--arg1", "arg2"},
 			"",
 		},
 		{
 			[]string{"-h", "-v", "key1=val1", "key2=val2", "command"},
-			Options{&Option{Type: optHelp}, &Option{Type: optVersion}},
+			&Options{Help: true, Version: true},
 			[]string{"key1=val1", "key2=val2", "command"},
 			"",
 		},
 		{
 			[]string{"command", "--arg1", "arg2"},
-			Options{},
+			&Options{},
 			[]string{"command", "--arg1", "arg2"},
 			"",
 		},
 		{
 			[]string{"--directory", "baz", "command"},
-			Options{&Option{Type: optDirectory, Value: "baz"}},
+			&Options{Directory: "baz"},
 			[]string{"command"},
 			"",
 		},
 		{
 			[]string{"--directory", "baz", "-v", "command"},
-			Options{&Option{Type: optDirectory, Value: "baz"}, &Option{Type: optVersion}},
+			&Options{Directory: "baz", Version: true},
 			[]string{"command"},
 			"",
 		},
 		{
 			[]string{"--directory", "--help", "-v", "command"},
-			Options{&Option{Type: optDirectory, Value: "--help"}, &Option{Type: optVersion}},
+			&Options{Directory: "--help", Version: true},
 			[]string{"command"},
 			"",
 		},
 		{
 			[]string{"--version"},
-			Options{&Option{Type: optVersion}},
+			&Options{Version: true},
 			[]string{},
 			"",
 		},
@@ -82,7 +82,7 @@ func TestParseOptions(t *testing.T) {
 		},
 		{
 			[]string{"-h"},
-			Options{&Option{Type: optHelp}},
+			&Options{Help: true},
 			[]string{},
 			"",
 		},

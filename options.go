@@ -5,24 +5,36 @@ import (
 	"strings"
 )
 
+type Options struct {
+	Help      bool
+	Version   bool
+	Directory string
+}
+
 type OptionType struct {
 	ShortName string
 	LongName  string
 	HasValue  bool
+	SetFunc   func(*Options, string)
 }
 
-func newOptionType(shortName, longName string, hasValue bool) *OptionType {
+func newOptionType(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType {
 	return &OptionType{
 		ShortName: shortName,
 		LongName:  longName,
 		HasValue:  hasValue,
+		SetFunc:   setFunc,
 	}
 }
 
+func (o *OptionType) setValue(opts *Options, value string) {
+	o.SetFunc(opts, value)
+}
+
 var (
-	optHelp      = newOptionType("-h", "--help", false)
-	optVersion   = newOptionType("-v", "--version", false)
-	optDirectory = newOptionType("-C", "--directory", true)
+	optHelp      = newOptionType("-h", "--help", false, func(opts *Options, _ string) { opts.Help = true })
+	optVersion   = newOptionType("-v", "--version", false, func(opts *Options, _ string) { opts.Version = true })
+	optDirectory = newOptionType("-C", "--directory", true, func(opts *Options, value string) { opts.Directory = value })
 )
 
 var optionTypes = []*OptionType{
@@ -40,23 +52,15 @@ var optionKeyMap = func() map[string]*OptionType {
 	return m
 }()
 
-type Option struct {
-	Type  *OptionType
-	Value string
-}
-
-type Options []*Option
-
-func parseOptions(args []string) (Options, []string, error) {
-	options := Options{}
+func parseOptions(args []string) (*Options, []string, error) {
+	options := &Options{}
 	commandArgs := []string{}
 	inOptions := true
-	var waitingOption *Option
+	var pendingOptionType *OptionType
 	for _, arg := range args {
-		if waitingOption != nil {
-			waitingOption.Value = arg
-			options = append(options, waitingOption)
-			waitingOption = nil
+		if pendingOptionType != nil {
+			pendingOptionType.setValue(options, arg)
+			pendingOptionType = nil
 			continue
 		}
 		if inOptions && strings.HasPrefix(arg, "-") {
@@ -65,17 +69,17 @@ func parseOptions(args []string) (Options, []string, error) {
 				return nil, nil, fmt.Errorf("Unknown option: %s", arg)
 			}
 			if optionType.HasValue {
-				waitingOption = &Option{Type: optionType}
+				pendingOptionType = optionType
 			} else {
-				options = append(options, &Option{Type: optionType})
+				optionType.setValue(options, "")
 			}
 		} else {
 			inOptions = false
 			commandArgs = append(commandArgs, arg)
 		}
 	}
-	if waitingOption != nil {
-		return nil, nil, fmt.Errorf("no value given for option %s", waitingOption.Type.LongName)
+	if pendingOptionType != nil {
+		return nil, nil, fmt.Errorf("no value given for option %s", pendingOptionType.LongName)
 	}
 	return options, commandArgs, nil
 }
