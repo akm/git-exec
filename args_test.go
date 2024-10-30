@@ -63,6 +63,12 @@ func TestSplitToOptionsAndCommandArgs(t *testing.T) {
 			"",
 		},
 		{
+			[]string{"--directory", "--help", "-v", "command"},
+			Options{&Option{Type: optDirectory, Value: "--help"}, &Option{Type: optVersion}},
+			[]string{"command"},
+			"",
+		},
+		{
 			[]string{"--version"},
 			Options{&Option{Type: optVersion}},
 			[]string{},
