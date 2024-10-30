@@ -9,6 +9,8 @@ type Options struct {
 	Help      bool
 	Version   bool
 	Directory string
+	Emoji     string
+	Prompt    string
 }
 
 type OptionType struct {
@@ -35,6 +37,8 @@ var (
 	optHelp      = newOptionType("-h", "--help", false, func(opts *Options, _ string) { opts.Help = true })
 	optVersion   = newOptionType("-v", "--version", false, func(opts *Options, _ string) { opts.Version = true })
 	optDirectory = newOptionType("-C", "--directory", true, func(opts *Options, value string) { opts.Directory = value })
+	optEmoji     = newOptionType("-e", "--emoji", true, func(opts *Options, value string) { opts.Emoji = value })
+	optPrompt    = newOptionType("-p", "--prompt", true, func(opts *Options, value string) { opts.Prompt = value })
 )
 
 var optionTypes = []*OptionType{
