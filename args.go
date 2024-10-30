@@ -23,6 +23,12 @@ func splitToOptionsAndCommandArgs(args []string) (Options, []string, error) {
 	inOptions := true
 	var waitingOption *Option
 	for _, arg := range args {
+		if waitingOption != nil {
+			waitingOption.Value = arg
+			options = append(options, waitingOption)
+			waitingOption = nil
+			continue
+		}
 		if inOptions && strings.HasPrefix(arg, "-") {
 			optionType, ok := optionKeyMap[arg]
 			if !ok {
@@ -34,14 +40,8 @@ func splitToOptionsAndCommandArgs(args []string) (Options, []string, error) {
 				options = append(options, &Option{Type: optionType})
 			}
 		} else {
-			if waitingOption != nil {
-				waitingOption.Value = arg
-				options = append(options, waitingOption)
-				waitingOption = nil
-			} else {
-				inOptions = false
-				commandArgs = append(commandArgs, arg)
-			}
+			inOptions = false
+			commandArgs = append(commandArgs, arg)
 		}
 	}
 	if waitingOption != nil {
