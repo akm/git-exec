@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSplitToOptionsAndCommandArgs(t *testing.T) {
+func TestParseOptions(t *testing.T) {
 	patterns := []struct {
 		args        []string
 		options     Options
@@ -90,7 +90,7 @@ func TestSplitToOptionsAndCommandArgs(t *testing.T) {
 
 	for i, ptn := range patterns {
 		t.Run(fmt.Sprintf("pattern %d", i), func(t *testing.T) {
-			options, commandArgs, err := splitToOptionsAndCommandArgs(ptn.args)
+			options, commandArgs, err := parseOptions(ptn.args)
 			assert.Equal(t, ptn.options, options)
 			assert.Equal(t, ptn.commandArgs, commandArgs)
 			if ptn.error == "" {

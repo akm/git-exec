@@ -17,7 +17,7 @@ func splitStringsInto2(args []string, fn func(string) bool) ([]string, []string)
 	return a, b
 }
 
-func splitToOptionsAndCommandArgs(args []string) (Options, []string, error) {
+func parseOptions(args []string) (Options, []string, error) {
 	options := Options{}
 	commandArgs := []string{}
 	inOptions := true
