@@ -63,7 +63,7 @@ func main() {
 		return
 	}
 
-	uncommitedChanges, err := hasUncommittedChanges()
+	uncommittedChanges, err := hasUncommittedChanges()
 	if err != nil {
 		fmt.Printf("git diff failed: %+v\n", err)
 		return
@@ -74,7 +74,7 @@ func main() {
 		return
 	}
 
-	if !uncommitedChanges && !untrackedFiles {
+	if !uncommittedChanges && !untrackedFiles {
 		fmt.Printf("No changes to commit and No untracked files\n")
 		return
 	}
