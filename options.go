@@ -18,7 +18,7 @@ type Options struct {
 func newOptions() *Options {
 	r := &Options{}
 	for _, opt := range optionTypes {
-		if !opt.HasValue {
+		if !opt.HasValue || opt.WithoutEnv {
 			continue
 		}
 		opt.setValue(r, os.Getenv(opt.envKey()))
@@ -27,10 +27,11 @@ func newOptions() *Options {
 }
 
 type OptionType struct {
-	ShortName string
-	LongName  string
-	HasValue  bool
-	SetFunc   func(*Options, string)
+	ShortName  string
+	LongName   string
+	HasValue   bool
+	SetFunc    func(*Options, string)
+	WithoutEnv bool
 }
 
 func newOptionType(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType {
@@ -52,10 +53,15 @@ func (o *OptionType) envKey() string {
 	return envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }
 
+func (o *OptionType) withoutEnv() *OptionType {
+	o.WithoutEnv = true
+	return o
+}
+
 var (
 	optHelp      = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true })
 	optVersion   = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true })
-	optDirectory = newOptionType("-C", "--directory", true, func(o *Options, v string) { o.Directory = v })
+	optDirectory = newOptionType("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).withoutEnv()
 	optEmoji     = newOptionType("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
 	optPrompt    = newOptionType("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
 	optTemplate  = newOptionType("-t", "--template", true, func(o *Options, v string) { o.Template = v })
