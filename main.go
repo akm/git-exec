@@ -41,11 +41,14 @@ func process(options *Options, commandArgs []string) error {
 		}
 	}
 
-	if err := guard(options); err != nil {
-		if isGuardError(err) {
-			return err
+	var guardMessage string
+	if guardResult, err := guard(options); err != nil {
+		return err
+	} else if guardResult != nil {
+		if guardResult.skipped {
+			guardMessage = guardResult.Format()
 		} else {
-			return fmt.Errorf("Guard failed: %+v", err)
+			return fmt.Errorf(guardResult.Format())
 		}
 	}
 
@@ -59,7 +62,13 @@ func process(options *Options, commandArgs []string) error {
 		return err
 	}
 
-	if err := commit(command, options); err != nil {
+	commitMessage := newCommitMessage(command, options)
+
+	if guardMessage != "" {
+		commitMessage.Body = guardMessage + "\n\n" + commitMessage.Body
+	}
+
+	if err := commit(commitMessage); err != nil {
 		return err
 	}
 
