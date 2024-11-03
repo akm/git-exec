@@ -42,7 +42,7 @@ func main() {
 		}
 	}
 
-	if err := guard(); err != nil {
+	if err := guard(options); err != nil {
 		if isGuardError(err) {
 			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		} else {

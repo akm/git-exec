@@ -13,7 +13,7 @@ func isGuardError(err error) bool {
 	return ok
 }
 
-func guard() error {
+func guard(opts *Options) error {
 	// 環境変数 GIT_EXEC_SKIP_GUARD, GIT_EXEC_SKIP_GUARD_UNCOMMITTED_CHANGES, GIT_EXEC_SKIP_GUARD_UNTRACKED_FILES には
 	// 以下の値で真偽値を表す文字列を想定する
 	// true: "true", "1", "yes", "on"
@@ -23,18 +23,18 @@ func guard() error {
 	// GIT_EXEC_SKIP_GUARD あるいは GIT_EXEC_SKIP_GUARD_UNCOMMITTED_CHANGES のいずれかが true でなければ、コミットされていない変更があればエラーを返す
 	// GIT_EXEC_SKIP_GUARD あるいは GIT_EXEC_SKIP_GUARD_UNTRACKED_FILES のいずれかが true でなければ、追跡されていないファイルがあればエラーを返す
 
-	if err := guardUncommittedChanges(); err != nil {
+	if err := guardUncommittedChanges(opts); err != nil {
 		return err
 	}
-	if err := guardUntrackedFiles(); err != nil {
+	if err := guardUntrackedFiles(opts); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func guardUncommittedChanges() error {
-	if getEnvBool("GIT_EXEC_SKIP_GUARD") || getEnvBool("GIT_EXEC_SKIP_GUARD_UNCOMMITTED_CHANGES") {
+func guardUncommittedChanges(opts *Options) error {
+	if opts.SkipGuard || opts.SkipGuardUncommittedChanges {
 		return nil
 	}
 	diff, err := hasUncommittedChanges()
@@ -47,8 +47,8 @@ func guardUncommittedChanges() error {
 	return nil
 }
 
-func guardUntrackedFiles() error {
-	if getEnvBool("GIT_EXEC_SKIP_GUARD") || getEnvBool("GIT_EXEC_SKIP_GUARD_UNTRACKED_FILES") {
+func guardUntrackedFiles(opts *Options) error {
+	if opts.SkipGuard || opts.SkipGuardUntrackedFiles {
 		return nil
 	}
 	r, err := hasUntrackedFiles()
