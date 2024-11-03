@@ -21,29 +21,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	options, commandArgs, err := splitToOptionsAndCommandArgs(os.Args[1:])
+	options, commandArgs, err := parseOptions(os.Args[1:])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
 	}
-	for _, option := range options {
-		switch option.Type {
-		case optHelp:
-			help()
+	if options.Help {
+		help()
+		os.Exit(0)
+	} else if options.Version {
+		if len(commandArgs) == 0 {
+			showVersion()
 			os.Exit(0)
-		case optVersion:
-			if len(commandArgs) == 0 {
-				showVersion()
-				os.Exit(0)
-			} else {
-				showVersionWithExecName(filepath.Base(os.Args[0]))
-			}
-		case optDirectory:
-			if err := os.Chdir(option.Value); err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to change directory: %s\n", err.Error())
-				os.Exit(1)
-			}
-		default:
-			fmt.Fprintf(os.Stderr, "Unknown option: %+v\n", option)
+		} else {
+			showVersionWithExecName(filepath.Base(os.Args[0]))
+		}
+	} else if options.Directory != "" {
+		if err := os.Chdir(options.Directory); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to change directory: %s\n", err.Error())
+			os.Exit(1)
 		}
 	}
 
@@ -63,7 +58,7 @@ func main() {
 		return
 	}
 
-	uncommitedChanges, err := hasUncommittedChanges()
+	uncommittedChanges, err := hasUncommittedChanges()
 	if err != nil {
 		fmt.Printf("git diff failed: %+v\n", err)
 		return
@@ -74,7 +69,7 @@ func main() {
 		return
 	}
 
-	if !uncommitedChanges && !untrackedFiles {
+	if !uncommittedChanges && !untrackedFiles {
 		fmt.Printf("No changes to commit and No untracked files\n")
 		return
 	}
@@ -86,7 +81,7 @@ func main() {
 	}
 
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage, err := newCommitMessage(command).Build()
+	commitMessage, err := newCommitMessage(command, options).Build()
 	if err != nil {
 		fmt.Printf("Failed to build commit message: %+v\n", err)
 		return

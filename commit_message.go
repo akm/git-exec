@@ -12,11 +12,12 @@ type commitMessage struct {
 	Emoji    string
 	Location string
 	Prompt   string
+	Template string
 	Command  string
 	Body     string
 }
 
-func newCommitMessage(command *Command) *commitMessage {
+func newCommitMessage(command *Command, options *Options) *commitMessage {
 	argParts := make([]string, len(command.Args))
 	for i, arg := range command.Args {
 		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {
@@ -34,19 +35,17 @@ func newCommitMessage(command *Command) *commitMessage {
 	commandParts := append(envs, argParts...)
 
 	return &commitMessage{
-		Env:     strings.Join(envs, " "),
-		Emoji:   getEnvString("GIT_EXEC_EMOJI", "🤖"),
-		Prompt:  getEnvString("GIT_EXEC_PROMPT", "$"),
-		Command: strings.Join(commandParts, " "),
-		Body:    command.Output,
+		Env:      strings.Join(envs, " "),
+		Emoji:    options.Emoji,
+		Prompt:   options.Prompt,
+		Template: options.Template,
+		Command:  strings.Join(commandParts, " "),
+		Body:     command.Output,
 	}
 }
 
-const defaultHeadTemplateSurce = `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`
-
-func (*commitMessage) newTemplate() (*template.Template, error) {
-	source := getEnvString("GIT_EXEC_TEMPLATE", defaultHeadTemplateSurce)
-	return template.New("commitMessage").Parse(source + "\n\n{{.Body}}\n")
+func (m *commitMessage) newTemplate() (*template.Template, error) {
+	return template.New("commitMessage").Parse(m.Template + "\n\n{{.Body}}\n")
 }
 
 func (m *commitMessage) Build() (string, error) {

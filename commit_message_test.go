@@ -42,16 +42,16 @@ func TestCommitMessage(t *testing.T) {
 	}
 
 	patterns := []pattern{
-		newPattern("the most simple pattern", "🤖 @root $ cmd1", args([]string{"cmd1"})),
-		newPattern("with location", "🤖 @root/sub1 $ cmd1", location("root/sub1"), args([]string{"cmd1"})),
-		newPattern("with envs", "🤖 @root $ key1=val1 key2=val2 key3=val3 cmd1", args([]string{"cmd1"}),
+		newPattern("the most simple pattern", "🤖 [root] $ cmd1", args([]string{"cmd1"})),
+		newPattern("with location", "🤖 [root/sub1] $ cmd1", location("root/sub1"), args([]string{"cmd1"})),
+		newPattern("with envs", "🤖 [root] $ key1=val1 key2=val2 key3=val3 cmd1", args([]string{"cmd1"}),
 			envs([]string{"key1=val1", "key2=val2", "key3=val3"}),
 		),
-		newPattern("with output", "🤖 @root $ cmd1\n\noutput1", args([]string{"cmd1"}), output("output1")),
-		newPattern("with multiple lines output", "🤖 @root $ cmd1\n\noutput1\noutput2", args([]string{"cmd1"}), output("output1\noutput2")),
-		newPattern("with arguments", "🤖 @root $ cmd1 foo bar", args([]string{"cmd1", "foo", "bar"})),
-		newPattern("with emoji", "🏭 @root $ cmd1", emoji("🏭"), args([]string{"cmd1"})),
-		newPattern("with prompt", "🤖 @root % cmd1", prompt("%"), args([]string{"cmd1"})),
+		newPattern("with output", "🤖 [root] $ cmd1\n\noutput1", args([]string{"cmd1"}), output("output1")),
+		newPattern("with multiple lines output", "🤖 [root] $ cmd1\n\noutput1\noutput2", args([]string{"cmd1"}), output("output1\noutput2")),
+		newPattern("with arguments", "🤖 [root] $ cmd1 foo bar", args([]string{"cmd1", "foo", "bar"})),
+		newPattern("with emoji", "🏭 [root] $ cmd1", emoji("🏭"), args([]string{"cmd1"})),
+		newPattern("with prompt", "🤖 [root] % cmd1", prompt("%"), args([]string{"cmd1"})),
 		newPattern("with template", "🤖 $ cmd1 [root]", args([]string{"cmd1"}),
 			template("{{.Emoji}} {{.Prompt}} {{.Command}} [{{.Location}}]"),
 		),
@@ -88,7 +88,7 @@ func TestCommitMessage(t *testing.T) {
 			defer func() { getLocation = bkGetLocation }()
 
 			command := &Command{Envs: ptn.envs, Args: ptn.args, Output: ptn.output}
-			commitMsg := newCommitMessage(command)
+			commitMsg := newCommitMessage(command, newOptions())
 
 			actual, err := commitMsg.Build()
 			assert.NoError(t, err)
