@@ -2,6 +2,9 @@ package main
 
 type guardError struct {
 	message string
+
+	uncommittedChanges string
+	untrackedFiles     string
 }
 
 func (e *guardError) Error() string {
@@ -42,7 +45,7 @@ func guardUncommittedChanges(opts *Options) error {
 		return err
 	}
 	if len(diff) > 0 {
-		return &guardError{"There are uncommitted changes"}
+		return &guardError{message: "There are uncommitted changes"}
 	}
 	return nil
 }
@@ -56,7 +59,7 @@ func guardUntrackedFiles(opts *Options) error {
 		return err
 	}
 	if len(untrackedFiles) > 0 {
-		return &guardError{"There are untracked files"}
+		return &guardError{message: "There are untracked files"}
 	}
 	return nil
 }
