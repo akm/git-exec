@@ -35,7 +35,9 @@ func main() {
 		} else {
 			showVersionWithExecName(filepath.Base(os.Args[0]))
 		}
-	} else if options.Directory != "" {
+	}
+
+	if options.Directory != "" {
 		if err := os.Chdir(options.Directory); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to change directory: %s\n", err.Error())
 			os.Exit(1)
