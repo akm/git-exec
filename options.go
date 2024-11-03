@@ -23,7 +23,7 @@ func newOptions() *Options {
 	defaultOptionsCopy := *defaultOptions
 	r := &defaultOptionsCopy
 	for _, opt := range optionTypes {
-		if !opt.HasValue || opt.WithoutEnv {
+		if opt.WithoutEnv {
 			continue
 		}
 		if v := os.Getenv(opt.envKey()); v != "" {
@@ -75,8 +75,6 @@ var defaultOptions = &Options{
 }
 
 var (
-	optHelp      = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true })
-	optVersion   = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true })
 	optDirectory = newOptionType("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).withoutEnv()
 	optEmoji     = newOptionType("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
 	optPrompt    = newOptionType("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
@@ -85,11 +83,12 @@ var (
 	optSkipGuard                   = newOptionType("", "--skip-guard", false, func(o *Options, _ string) { o.SkipGuard = true })
 	optSkipGuardUncommittedChanges = newOptionType("", "--skip-guard-uncommitted-changes", false, func(o *Options, _ string) { o.SkipGuardUncommittedChanges = true })
 	optSkipGuardUntrackedFiles     = newOptionType("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
+
+	optHelp    = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).withoutEnv()
+	optVersion = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
 )
 
 var optionTypes = []*OptionType{
-	optHelp,
-	optVersion,
 	optDirectory,
 	optEmoji,
 	optPrompt,
@@ -97,6 +96,8 @@ var optionTypes = []*OptionType{
 	optSkipGuard,
 	optSkipGuardUncommittedChanges,
 	optSkipGuardUntrackedFiles,
+	optHelp,
+	optVersion,
 }
 
 var optionKeyMap = func() map[string]*OptionType {
