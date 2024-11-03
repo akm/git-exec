@@ -37,56 +37,55 @@ func main() {
 		}
 	}
 
+	if err := process(options, commandArgs); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+}
+
+func process(options *Options, commandArgs []string) error {
 	if options.Directory != "" {
 		if err := os.Chdir(options.Directory); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to change directory: %s\n", err.Error())
-			os.Exit(1)
+			return fmt.Errorf("Failed to change directory: %s", err.Error())
 		}
 	}
 
 	if err := guard(options); err != nil {
 		if isGuardError(err) {
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			return err
 		} else {
-			fmt.Printf("Guard failed: %+v\n", err)
+			return fmt.Errorf("Guard failed: %+v", err)
 		}
-		os.Exit(1)
 	}
 
 	command := newCommand(commandArgs)
 
 	if err := command.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output)
-		return
+		return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 	}
 
 	uncommittedChanges, err := hasUncommittedChanges()
 	if err != nil {
-		fmt.Printf("git diff failed: %+v\n", err)
-		return
+		return fmt.Errorf("git diff failed: %+v", err)
 	}
 	untrackedFiles, err := hasUntrackedFiles()
 	if err != nil {
-		fmt.Printf("git ls-files failed: %+v\n", err)
-		return
+		return fmt.Errorf("git ls-files failed: %+v", err)
 	}
 
 	if !uncommittedChanges && !untrackedFiles {
-		fmt.Printf("No changes to commit and No untracked files\n")
-		return
+		return fmt.Errorf("No changes to commit and No untracked files")
 	}
 
 	// 2. "git add ." を実行し、コマンドによって作成・変更されたカレントディレクトリ以下のファイルを staging area に追加する。
 	if err := exec.Command("git", "add", ".").Run(); err != nil {
-		fmt.Printf("git add failed: %+v\n", err)
-		return
+		return fmt.Errorf("git add failed: %+v", err)
 	}
 
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
 	commitMessage, err := newCommitMessage(command, options).Build()
 	if err != nil {
-		fmt.Printf("Failed to build commit message: %+v\n", err)
-		return
+		return fmt.Errorf("Failed to build commit message: %+v", err)
 	}
 
 	// See https://tracpath.com/docs/git-commit/
@@ -94,7 +93,8 @@ func main() {
 	commitCmd.Stdin = bytes.NewBufferString(commitMessage)
 
 	if err := commitCmd.Run(); err != nil {
-		fmt.Printf("git commit failed: %+v\n", err)
-		return
+		return fmt.Errorf("git commit failed: %+v", err)
 	}
+
+	return nil
 }
