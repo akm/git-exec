@@ -47,6 +47,7 @@ func process(options *Options, commandArgs []string) error {
 	} else if guardResult != nil {
 		if guardResult.skipped {
 			guardMessage = guardResult.Format()
+			fmt.Fprintf(os.Stderr, "Guard skipped: %s\n", guardMessage)
 		} else {
 			return fmt.Errorf(guardResult.Format())
 		}
