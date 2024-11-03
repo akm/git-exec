@@ -16,9 +16,9 @@ func (g *guardResult) Message() string {
 	if len(g.uncommittedChanges) > 0 && len(g.untrackedFiles) > 0 {
 		r = "There are uncommitted changes and untracked files"
 	} else if len(g.untrackedFiles) > 0 {
-		r = "There are uncommitted changes"
-	} else {
 		r = "There are untracked files"
+	} else {
+		r = "There are uncommitted changes"
 	}
 	if g.skipped {
 		r += " but guard was skipped by options"
