@@ -16,12 +16,15 @@ type Options struct {
 }
 
 func newOptions() *Options {
-	r := &Options{}
+	defaultOptionsCopy := *defaultOptions
+	r := &defaultOptionsCopy
 	for _, opt := range optionTypes {
 		if !opt.HasValue || opt.WithoutEnv {
 			continue
 		}
-		opt.setValue(r, os.Getenv(opt.envKey()))
+		if v := os.Getenv(opt.envKey()); v != "" {
+			opt.setValue(r, v)
+		}
 	}
 	return r
 }
@@ -56,6 +59,15 @@ func (o *OptionType) envKey() string {
 func (o *OptionType) withoutEnv() *OptionType {
 	o.WithoutEnv = true
 	return o
+}
+
+var defaultOptions = &Options{
+	Help:      false,
+	Version:   false,
+	Directory: "",
+	Emoji:     "🤖",
+	Prompt:    "$",
+	Template:  `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`,
 }
 
 var (
