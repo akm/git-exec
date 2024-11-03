@@ -88,7 +88,7 @@ func TestCommitMessage(t *testing.T) {
 			defer func() { getLocation = bkGetLocation }()
 
 			command := &Command{Envs: ptn.envs, Args: ptn.args, Output: ptn.output}
-			commitMsg := newCommitMessage(command)
+			commitMsg := newCommitMessage(command, newOptions())
 
 			actual, err := commitMsg.Build()
 			assert.NoError(t, err)

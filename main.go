@@ -81,7 +81,7 @@ func main() {
 	}
 
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage, err := newCommitMessage(command).Build()
+	commitMessage, err := newCommitMessage(command, options).Build()
 	if err != nil {
 		fmt.Printf("Failed to build commit message: %+v\n", err)
 		return
