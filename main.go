@@ -1,21 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 )
 
 func main() {
-	// 1. このプログラムに渡された引数をコマンドとして実行する。
-	//    その際には、コマンドの照準出力と標準エラー出力をバッファに格納する。
-	// 2. "git add ." を実行し、コマンドによって作成・変更されたカレントディレクトリ以下のファイルを staging area に追加する。
-	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	//    オプション : --file -
-	//    標準入力: "🤖 (実行したコマンド)\n\n(バッファ)"
-
 	if len(os.Args) < 2 {
 		help()
 		os.Exit(1)
@@ -35,64 +26,52 @@ func main() {
 		} else {
 			showVersionWithExecName(filepath.Base(os.Args[0]))
 		}
-	} else if options.Directory != "" {
+	}
+
+	if err := process(options, commandArgs); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+}
+
+func process(options *Options, commandArgs []string) error {
+	if options.Directory != "" {
 		if err := os.Chdir(options.Directory); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to change directory: %s\n", err.Error())
-			os.Exit(1)
+			return fmt.Errorf("Failed to change directory: %s", err.Error())
 		}
 	}
 
-	if err := guard(); err != nil {
-		if isGuardError(err) {
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+	var guardMessage string
+	if guardResult, err := guard(options); err != nil {
+		return err
+	} else if guardResult != nil {
+		if guardResult.skipped {
+			guardMessage = guardResult.Format()
+			fmt.Fprintf(os.Stderr, "Guard skipped: %s\n", guardMessage)
 		} else {
-			fmt.Printf("Guard failed: %+v\n", err)
+			return fmt.Errorf("Quit processing because %s", guardResult.Format())
 		}
-		os.Exit(1)
 	}
 
 	command := newCommand(commandArgs)
 
 	if err := command.Run(); err != nil {
-		fmt.Printf("Command execution failed: %+v\n%s", err, command.Output)
-		return
+		return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 	}
 
-	uncommittedChanges, err := hasUncommittedChanges()
-	if err != nil {
-		fmt.Printf("git diff failed: %+v\n", err)
-		return
-	}
-	untrackedFiles, err := hasUntrackedFiles()
-	if err != nil {
-		fmt.Printf("git ls-files failed: %+v\n", err)
-		return
+	if err := add(); err != nil {
+		return err
 	}
 
-	if !uncommittedChanges && !untrackedFiles {
-		fmt.Printf("No changes to commit and No untracked files\n")
-		return
+	commitMessage := newCommitMessage(command, options)
+
+	if guardMessage != "" {
+		commitMessage.Body = guardMessage + "\n\n" + commitMessage.Body
 	}
 
-	// 2. "git add ." を実行し、コマンドによって作成・変更されたカレントディレクトリ以下のファイルを staging area に追加する。
-	if err := exec.Command("git", "add", ".").Run(); err != nil {
-		fmt.Printf("git add failed: %+v\n", err)
-		return
+	if err := commit(commitMessage); err != nil {
+		return err
 	}
 
-	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
-	commitMessage, err := newCommitMessage(command, options).Build()
-	if err != nil {
-		fmt.Printf("Failed to build commit message: %+v\n", err)
-		return
-	}
-
-	// See https://tracpath.com/docs/git-commit/
-	commitCmd := exec.Command("git", "commit", "--file", "-")
-	commitCmd.Stdin = bytes.NewBufferString(commitMessage)
-
-	if err := commitCmd.Run(); err != nil {
-		fmt.Printf("git commit failed: %+v\n", err)
-		return
-	}
+	return nil
 }

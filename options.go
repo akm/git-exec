@@ -13,6 +13,10 @@ type Options struct {
 	Emoji     string
 	Prompt    string
 	Template  string
+
+	SkipGuard                   bool
+	SkipGuardUncommittedChanges bool
+	SkipGuardUntrackedFiles     bool
 }
 
 func newOptions() *Options {
@@ -77,6 +81,10 @@ var (
 	optEmoji     = newOptionType("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
 	optPrompt    = newOptionType("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
 	optTemplate  = newOptionType("-t", "--template", true, func(o *Options, v string) { o.Template = v })
+
+	optSkipGuard                   = newOptionType("", "--skip-guard", false, func(o *Options, _ string) { o.SkipGuard = true })
+	optSkipGuardUncommittedChanges = newOptionType("", "--skip-guard-uncommitted-changes", false, func(o *Options, _ string) { o.SkipGuardUncommittedChanges = true })
+	optSkipGuardUntrackedFiles     = newOptionType("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
 )
 
 var optionTypes = []*OptionType{
@@ -86,6 +94,9 @@ var optionTypes = []*OptionType{
 	optEmoji,
 	optPrompt,
 	optTemplate,
+	optSkipGuard,
+	optSkipGuardUncommittedChanges,
+	optSkipGuardUntrackedFiles,
 }
 
 var optionKeyMap = func() map[string]*OptionType {
