@@ -51,11 +51,11 @@ func guardUntrackedFiles(opts *Options) error {
 	if opts.SkipGuard || opts.SkipGuardUntrackedFiles {
 		return nil
 	}
-	r, err := hasUntrackedFiles()
+	untrackedFiles, err := untrackedFiles()
 	if err != nil {
 		return err
 	}
-	if r {
+	if len(untrackedFiles) > 0 {
 		return &guardError{"There are untracked files"}
 	}
 	return nil

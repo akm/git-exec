@@ -10,12 +10,12 @@ func add() error {
 	if err != nil {
 		return fmt.Errorf("git diff failed: %+v", err)
 	}
-	untrackedFiles, err := hasUntrackedFiles()
+	untrackedFiles, err := untrackedFiles()
 	if err != nil {
 		return fmt.Errorf("git ls-files failed: %+v", err)
 	}
 
-	if len(uncommittedChanges) == 0 && !untrackedFiles {
+	if len(uncommittedChanges) == 0 && len(untrackedFiles) == 0 {
 		return fmt.Errorf("No changes to commit and No untracked files")
 	}
 

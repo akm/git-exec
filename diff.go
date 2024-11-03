@@ -13,11 +13,11 @@ func uncommittedChanges() (string, error) {
 	return string(bytes.TrimSpace(output)), nil
 }
 
-func hasUntrackedFiles() (bool, error) {
+func untrackedFiles() (string, error) {
 	cmd := exec.Command("git", "ls-files", "--others", "--exclude-standard")
 	output, err := cmd.Output()
 	if err != nil {
-		return false, err
+		return "", err
 	}
-	return len(bytes.TrimSpace(output)) > 0, nil
+	return string(bytes.TrimSpace(output)), nil
 }
