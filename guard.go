@@ -37,11 +37,11 @@ func guardUncommittedChanges(opts *Options) error {
 	if opts.SkipGuard || opts.SkipGuardUncommittedChanges {
 		return nil
 	}
-	diff, err := hasUncommittedChanges()
+	diff, err := uncommittedChanges()
 	if err != nil {
 		return err
 	}
-	if diff {
+	if len(diff) > 0 {
 		return &guardError{"There are uncommitted changes"}
 	}
 	return nil
