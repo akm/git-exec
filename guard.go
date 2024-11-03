@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type guardResult struct {
 	uncommittedChanges string
@@ -24,11 +27,14 @@ func (g *guardResult) Message() string {
 }
 
 func (g *guardResult) Format() string {
-	return fmt.Sprintf("%s\nUncommitted changes:\n%s\n\nUntracked files:\n%s\n",
-		g.Message(),
-		g.uncommittedChanges,
-		g.untrackedFiles,
-	)
+	parts := []string{g.Message()}
+	if len(g.uncommittedChanges) > 0 {
+		parts = append(parts, fmt.Sprintf("Uncommitted changes:\n%s", g.uncommittedChanges))
+	}
+	if len(g.untrackedFiles) > 0 {
+		parts = append(parts, fmt.Sprintf("Untracked files:\n%s", g.untrackedFiles))
+	}
+	return strings.Join(parts, "\n\n")
 }
 
 func guard(opts *Options) (*guardResult, error) {
