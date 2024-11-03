@@ -64,22 +64,8 @@ func process(options *Options, commandArgs []string) error {
 		return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 	}
 
-	uncommittedChanges, err := hasUncommittedChanges()
-	if err != nil {
-		return fmt.Errorf("git diff failed: %+v", err)
-	}
-	untrackedFiles, err := hasUntrackedFiles()
-	if err != nil {
-		return fmt.Errorf("git ls-files failed: %+v", err)
-	}
-
-	if !uncommittedChanges && !untrackedFiles {
-		return fmt.Errorf("No changes to commit and No untracked files")
-	}
-
-	// 2. "git add ." を実行し、コマンドによって作成・変更されたカレントディレクトリ以下のファイルを staging area に追加する。
-	if err := exec.Command("git", "add", ".").Run(); err != nil {
-		return fmt.Errorf("git add failed: %+v", err)
+	if err := add(); err != nil {
+		return err
 	}
 
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
