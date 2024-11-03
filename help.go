@@ -33,6 +33,10 @@ func help() {
 			item = fmt.Sprintf("%s%s, "+longNameFormat, indent, opt.ShortName, opt.LongName)
 		}
 		item += " " + optionMessageMap[opt.LongName]
+		if defaultGetter, ok := defaultValueGetterMap[opt.LongName]; ok {
+			item += fmt.Sprintf(" (default: %s)", defaultGetter())
+		}
+
 		optionItems[i] = item
 		if !opt.WithoutEnv {
 			envVarItems = append(envVarItems, fmt.Sprintf(longNameFormat+" %s", opt.LongName, opt.envKey()))
@@ -57,3 +61,28 @@ var optionMessageMap = map[string]string{
 	"--skip-guard-uncommitted-changes": "Skip the guard check for uncommitted changes before executing command.",
 	"--skip-guard-untracked-files":     "Skip the guard check for untracked files before executing command.",
 }
+
+var defaultValueGetterMap = func() map[string]func() string {
+	boolToString := func(b bool) string {
+		if b {
+			return "true"
+		} else {
+			return "false"
+		}
+	}
+	quote := func(s string) string {
+		return fmt.Sprintf("%q", s)
+	}
+
+	o := defaultOptions
+	return map[string]func() string{
+		"--directory": func() string { return quote(o.Directory) },
+		"--emoji":     func() string { return quote(o.Emoji) },
+		"--prompt":    func() string { return quote(o.Prompt) },
+		"--template":  func() string { return quote(o.Template) },
+		// skip guard
+		"--skip-guard":                     func() string { return boolToString(o.SkipGuard) },
+		"--skip-guard-uncommitted-changes": func() string { return boolToString(o.SkipGuardUncommittedChanges) },
+		"--skip-guard-untracked-files":     func() string { return boolToString(o.SkipGuardUntrackedFiles) },
+	}
+}()
