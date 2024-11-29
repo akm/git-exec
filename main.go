@@ -48,6 +48,9 @@ func process(options *Options, commandArgs []string) error {
 	}
 
 	command := newCommand(commandArgs)
+	if options.DebugLog {
+		command.EnableDebugLog()
+	}
 
 	if err := changeDir((options.Directory), func() error {
 		if err := command.Run(); err != nil {
