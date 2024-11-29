@@ -47,30 +47,15 @@ func process(options *Options, commandArgs []string) error {
 		}
 	}
 
-	var origDir string
-	if options.Directory != "" {
-		{
-			var err error
-			origDir, err = os.Getwd()
-			if err != nil {
-				return fmt.Errorf("Failed to get current directory: %s", err.Error())
-			}
-		}
-		if err := os.Chdir(options.Directory); err != nil {
-			return fmt.Errorf("Failed to change directory: %s", err.Error())
-		}
-	}
-
 	command := newCommand(commandArgs)
 
-	if err := command.Run(); err != nil {
-		return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
-	}
-
-	if origDir != "" {
-		if err := os.Chdir(origDir); err != nil {
-			return fmt.Errorf("Failed to change directory: %s", err.Error())
+	if err := changeDir((options.Directory), func() error {
+		if err := command.Run(); err != nil {
+			return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 		}
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	if err := add(); err != nil {
@@ -88,4 +73,31 @@ func process(options *Options, commandArgs []string) error {
 	}
 
 	return nil
+}
+
+func changeDir(dir string, cb func() error) (rerr error) {
+	if dir == "" {
+		return cb()
+	}
+	var origDir string
+	if dir != "" {
+		{
+			var err error
+			origDir, err = os.Getwd()
+			if err != nil {
+				return fmt.Errorf("Failed to get current directory: %s", err.Error())
+			}
+		}
+		if err := os.Chdir(dir); err != nil {
+			return fmt.Errorf("Failed to change directory: %s", err.Error())
+		}
+	}
+	if origDir != "" {
+		defer func() {
+			if err := os.Chdir(origDir); err != nil {
+				rerr = fmt.Errorf("Failed to change directory: %s", err.Error())
+			}
+		}()
+	}
+	return cb()
 }
