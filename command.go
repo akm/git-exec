@@ -12,6 +12,8 @@ type Command struct {
 	Envs   []string
 	Args   []string
 	Output string
+
+	debugLog bool
 }
 
 func newCommand(args []string) *Command {
@@ -22,18 +24,46 @@ func newCommand(args []string) *Command {
 	}
 }
 
+func (c *Command) EnableDebugLog() {
+	c.debugLog = true
+}
+
 func (c *Command) Run() error {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
 	cmd.Stdin = os.Stdin
 	var buf bytes.Buffer
-	cmd.Stdout = io.MultiWriter(os.Stdout, &buf)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
+
+	stdoutWriter, stdoutTd, err := c.newOutputWriter(os.Stdout, &buf, "./stdout.log")
+	if err != nil {
+		return nil
+	}
+	defer stdoutTd()
+
+	stderrWriter, stderrTd, err := c.newOutputWriter(os.Stderr, &buf, "./stderr.log")
+	if err != nil {
+		return nil
+	}
+	defer stderrTd()
+
+	cmd.Stdout = stdoutWriter
+	cmd.Stderr = stderrWriter
 	if err := cmd.Run(); err != nil {
 		return err
 	}
 	c.Output = buf.String()
 	return nil
+}
+
+func (c *Command) newOutputWriter(original io.Writer, buf *bytes.Buffer, debugLogFile string) (io.Writer, func() error, error) {
+	if !c.debugLog {
+		return io.MultiWriter(os.Stdout, buf), func() error { return nil }, nil
+	}
+	logFile, err := os.OpenFile(debugLogFile, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, nil, err
+	}
+	return io.MultiWriter(original, buf, logFile), logFile.Close, nil
 }
 
 func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
