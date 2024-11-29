@@ -35,6 +35,18 @@ func main() {
 }
 
 func process(options *Options, commandArgs []string) error {
+	var guardMessage string
+	if guardResult, err := guard(options); err != nil {
+		return err
+	} else if guardResult != nil {
+		if guardResult.skipped {
+			guardMessage = guardResult.Format()
+			fmt.Fprintf(os.Stderr, "Guard skipped: %s\n", guardMessage)
+		} else {
+			return fmt.Errorf("Quit processing because %s", guardResult.Format())
+		}
+	}
+
 	var origDir string
 	if options.Directory != "" {
 		{
@@ -46,18 +58,6 @@ func process(options *Options, commandArgs []string) error {
 		}
 		if err := os.Chdir(options.Directory); err != nil {
 			return fmt.Errorf("Failed to change directory: %s", err.Error())
-		}
-	}
-
-	var guardMessage string
-	if guardResult, err := guard(options); err != nil {
-		return err
-	} else if guardResult != nil {
-		if guardResult.skipped {
-			guardMessage = guardResult.Format()
-			fmt.Fprintf(os.Stderr, "Guard skipped: %s\n", guardMessage)
-		} else {
-			return fmt.Errorf("Quit processing because %s", guardResult.Format())
 		}
 	}
 
