@@ -35,7 +35,15 @@ func main() {
 }
 
 func process(options *Options, commandArgs []string) error {
+	var origDir string
 	if options.Directory != "" {
+		{
+			var err error
+			origDir, err = os.Getwd()
+			if err != nil {
+				return fmt.Errorf("Failed to get current directory: %s", err.Error())
+			}
+		}
 		if err := os.Chdir(options.Directory); err != nil {
 			return fmt.Errorf("Failed to change directory: %s", err.Error())
 		}
@@ -57,6 +65,12 @@ func process(options *Options, commandArgs []string) error {
 
 	if err := command.Run(); err != nil {
 		return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
+	}
+
+	if origDir != "" {
+		if err := os.Chdir(origDir); err != nil {
+			return fmt.Errorf("Failed to change directory: %s", err.Error())
+		}
 	}
 
 	if err := add(); err != nil {
