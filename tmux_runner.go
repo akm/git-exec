@@ -86,6 +86,7 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 func (x *TmuxRunner) tmux(subcommand string, args ...string) error {
 	arguments := append([]string{subcommand}, args...)
 	cmd := exec.Command("tmux", arguments...)
+	cmd.Env = os.Environ()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	slog.Debug("tmux", "args", arguments)
