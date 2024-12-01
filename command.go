@@ -28,7 +28,7 @@ func (c *Command) EnableDebugLog() {
 	c.debugLog = true
 }
 
-func (c *Command) Run() error {
+func (c *Command) Run() (rerr error) {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
 	cmd.Stdin = os.Stdin
@@ -38,13 +38,21 @@ func (c *Command) Run() error {
 	if err != nil {
 		return nil
 	}
-	defer stdoutTd()
+	defer func() {
+		if err := stdoutTd(); err != nil && rerr == nil {
+			rerr = err
+		}
+	}()
 
 	stderrWriter, stderrTd, err := c.newOutputWriter(os.Stderr, &buf, "./stderr.log")
 	if err != nil {
 		return nil
 	}
-	defer stderrTd()
+	defer func() {
+		if err := stderrTd(); err != nil && rerr == nil {
+			rerr = err
+		}
+	}()
 
 	cmd.Stdout = stdoutWriter
 	cmd.Stderr = stderrWriter
