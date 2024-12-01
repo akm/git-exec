@@ -59,15 +59,6 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 		return err
 	}
 
-	// tmpFile, err := os.CreateTemp("", "git-exec-pipe-pane")
-	// if err != nil {
-	// 	return err
-	// }
-	// if err := tmpFile.Close(); err != nil {
-	// 	return err
-	// }
-	// defer os.Remove(tmpFile.Name())
-
 	defer func() {
 		if err := os.Remove(x.pipeLogFile); err != nil && rerr == nil {
 			rerr = err
@@ -140,18 +131,6 @@ func (x *TmuxRunner) tmuxSendKeys(args ...string) error {
 }
 
 func (x *TmuxRunner) startPipePane() error {
-	// cmd := exec.Command("tmux", append(
-	// 	[]string{
-	// 		"pipe-pane", "-t",
-	// 		x.session,
-	// 	},
-	// 	args...,
-	// )...)
-
-	// cmd := exec.Command(os.Getenv("SHELL"), "-c",
-	// 	singleQuote("tmux pipe-pane -t "+x.session+" "+strings.Join(args, " ")),
-	// )
-
 	// tmuxを直接呼び指すとうまく動かないので、シェル経由で呼び出す
 	// cmd := exec.Command("tmux", "pipe-pane", "-t", "git-exec-session", "-o", "'cat >> /Users/akima/workspace/git-exec/trace.log'")
 	cmd := exec.Command("/bin/zsh", "-c",
@@ -160,7 +139,6 @@ func (x *TmuxRunner) startPipePane() error {
 			x.pipeLogFile,
 		),
 	)
-	// cmd.WaitDelay = 1 * time.Second
 
 	slog.Debug("startPipePane", "args", cmd.Args)
 
