@@ -19,6 +19,7 @@ type Options struct {
 	SkipGuardUntrackedFiles     bool
 
 	DebugLog bool
+	Tmux     bool
 }
 
 func newOptions() *Options {
@@ -75,6 +76,7 @@ var defaultOptions = &Options{
 	Prompt:    "$",
 	Template:  `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`,
 	DebugLog:  false,
+	Tmux:      false,
 }
 
 var (
@@ -88,6 +90,7 @@ var (
 	optSkipGuardUntrackedFiles     = newOptionType("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
 
 	optDebugLog = newOptionType("-D", "--debug-log", false, func(o *Options, _ string) { o.DebugLog = true })
+	optTmux     = newOptionType("-T", "--tmux", false, func(o *Options, _ string) { o.Tmux = true })
 
 	optHelp    = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).withoutEnv()
 	optVersion = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
@@ -104,6 +107,7 @@ var optionTypes = []*OptionType{
 	optDebugLog,
 	optHelp,
 	optVersion,
+	optTmux,
 }
 
 var optionKeyMap = func() map[string]*OptionType {

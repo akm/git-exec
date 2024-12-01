@@ -48,7 +48,12 @@ func process(options *Options, commandArgs []string) error {
 	}
 
 	command := newCommand(commandArgs)
-	runner := newStandardRunner(options.DebugLog)
+	var runner Runner
+	if options.Tmux {
+		runner = newTmuxRunner(options.DebugLog)
+	} else {
+		runner = newStandardRunner(options.DebugLog)
+	}
 
 	if err := changeDir((options.Directory), func() error {
 		if err := runner.Run(command); err != nil {
