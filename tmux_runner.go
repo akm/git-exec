@@ -15,21 +15,25 @@ import (
 
 type TmuxRunner struct {
 	session     string
-	doneString  string
 	pipeLogFile string
 	interval    time.Duration
 	debugLog    bool
+
+	completeString string
+	errorString    string
 }
 
 var _ Runner = (*TmuxRunner)(nil)
 
 func newTmuxRunner(debugLog bool) *TmuxRunner {
+	doneStringPrefix := "git-exec-done"
 	return &TmuxRunner{
-		session:     "git-exec-session",
-		doneString:  "git-exec-done",
-		pipeLogFile: filepath.Join(os.TempDir(), "trace.log"),
-		debugLog:    debugLog,
-		interval:    1_000 * time.Millisecond,
+		session:        "git-exec-session",
+		pipeLogFile:    filepath.Join(os.TempDir(), "trace.log"),
+		debugLog:       debugLog,
+		interval:       1_000 * time.Millisecond,
+		completeString: doneStringPrefix + "-complete",
+		errorString:    doneStringPrefix + "-error",
 	}
 }
 
@@ -54,7 +58,7 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 		}
 	}()
 
-	inputs := append(append(c.Envs, c.Args...), "; echo "+x.doneString)
+	inputs := append(append(c.Envs, c.Args...), " && echo "+x.completeString+" || echo "+x.errorString)
 	if err := x.tmuxSendKeys(inputs...); err != nil {
 		return err
 	}
@@ -194,7 +198,10 @@ func (x *TmuxRunner) findDoneString() (bool, error) {
 		return false, err
 	}
 	logger.Debug("findDoneString 2", "length", len(b))
-	return bytes.Contains(b, []byte(x.doneString)), nil
+	if bytes.Contains(b, []byte(x.errorString)) {
+		return false, fmt.Errorf("error occurred")
+	}
+	return bytes.Contains(b, []byte(x.completeString)), nil
 }
 
 func init() {
