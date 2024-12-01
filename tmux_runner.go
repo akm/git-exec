@@ -89,6 +89,7 @@ func (x *TmuxRunner) tmux(subcommand string, args ...string) error {
 	cmd.Env = os.Environ()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
 	slog.Debug("tmux", "args", arguments)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("tmux %s: %w", strings.Join(arguments, " "), err)
