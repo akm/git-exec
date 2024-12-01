@@ -81,7 +81,10 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 func (x *TmuxRunner) tmux(subcommand string, args ...string) error {
 	arguments := append([]string{subcommand}, args...)
 	cmd := exec.Command("tmux", arguments...)
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("tmux %s %s: %w", subcommand, strings.Join(arguments, " "), err)
+	}
+	return nil
 }
 
 func (x *TmuxRunner) tmuxNewSession() error {
@@ -111,7 +114,10 @@ func (x *TmuxRunner) pipePane(args ...string) error {
 func (x *TmuxRunner) tmuxCapturePane() (string, error) {
 	cmd := exec.Command("tmux", "capture-pane", "-t", x.session, "-pS", "-", "-e")
 	b, err := cmd.Output()
-	return string(b), err
+	if err != nil {
+		return "", fmt.Errorf("tmux capture-pane: %w", err)
+	}
+	return string(b), nil
 }
 
 func (x *TmuxRunner) killSession() error {
