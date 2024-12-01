@@ -150,20 +150,6 @@ func (x *TmuxRunner) startPipePane() error {
 	return nil
 }
 
-func (x *TmuxRunner) stopPipePane() error {
-	cmd := exec.Command("/bin/zsh", "-c", "tmux pipe-pane -t git-exec-session")
-	// cmd.WaitDelay = 1 * time.Second
-
-	slog.Debug("stopPipePane", "args", cmd.Args)
-
-	stderrBuf := new(strings.Builder)
-	cmd.Stderr = stderrBuf
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("tmux pipe-pane: %w stderr: %s", err, stderrBuf.String())
-	}
-	return nil
-}
-
 var ansiEscape = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
 
 func (x *TmuxRunner) tmuxCapturePane() (string, error) {
@@ -179,14 +165,6 @@ func (x *TmuxRunner) tmuxCapturePane() (string, error) {
 
 func (x *TmuxRunner) killSession() error {
 	return x.tmux("kill-session", "-t", x.session)
-}
-
-func singleQuote(s string) string {
-	return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'"
-}
-
-func doubleQuote(s string) string {
-	return `"` + strings.ReplaceAll(s, `"`, `\"`) + `"`
 }
 
 func (x *TmuxRunner) findDoneStringFromPipePane() (bool, error) {
