@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -185,6 +186,8 @@ func (x *TmuxRunner) stopPipePane() error {
 	return nil
 }
 
+var ansiEscape = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+
 func (x *TmuxRunner) tmuxCapturePane() (string, error) {
 	cmd := exec.Command("tmux", "capture-pane", "-t", x.session, "-pS", "-", "-e")
 	slog.Debug("tmux capture-pane", "args", cmd.Args)
@@ -192,7 +195,8 @@ func (x *TmuxRunner) tmuxCapturePane() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("tmux capture-pane: %w", err)
 	}
-	return string(b), nil
+	cleanedOutput := ansiEscape.ReplaceAll(b, []byte(""))
+	return string(cleanedOutput), nil
 }
 
 func (x *TmuxRunner) killSession() error {
