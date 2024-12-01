@@ -121,13 +121,11 @@ func (x *TmuxRunner) tmuxNewSession(args ...string) error {
 }
 
 func (x *TmuxRunner) tmuxSendKeys(args ...string) error {
-	arguments := []string{
-		"-t",
-		x.session,
+	return x.tmux("send-keys",
+		"-t", x.session,
 		strings.Join(args, " "),
 		"C-m",
-	}
-	return x.tmux("send-keys", arguments...)
+	)
 }
 
 func (x *TmuxRunner) startPipePane() error {
