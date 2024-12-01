@@ -13,10 +13,6 @@ type StandardRunner struct {
 
 var _ Runner = (*StandardRunner)(nil)
 
-func (x *StandardRunner) EnableDebugLog() {
-	x.debugLog = true
-}
-
 func newStandardRunner(debugLog bool) *StandardRunner {
 	return &StandardRunner{
 		debugLog: debugLog,
