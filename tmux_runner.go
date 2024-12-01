@@ -202,27 +202,28 @@ func doubleQuote(s string) string {
 	return `"` + strings.ReplaceAll(s, `"`, `\"`) + `"`
 }
 
-func (x *TmuxRunner) findDoneStringFromPipePane(tmpFileName string) (bool, error) {
-	slog.Debug("findDoneStringFromPipePane 0", "file", tmpFileName)
-	tmpFile, err := os.Open(tmpFileName)
+func (x *TmuxRunner) findDoneStringFromPipePane() (bool, error) {
+	logger := slog.Default().With("file", x.pipeLogFile)
+	logger.Debug("findDoneStringFromPipePane 0")
+	tmpFile, err := os.Open(x.pipeLogFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			slog.Debug("findDoneStringFromPipePane", "file", tmpFileName, "err", "not found")
+			logger.Debug("findDoneStringFromPipePane", "err", "not found")
 			return false, nil
 		}
-		slog.Error("findDoneStringFromPipePane", "file", tmpFileName, "err", err)
+		logger.Error("findDoneStringFromPipePane", "err", err)
 		return false, err
 	}
 	defer tmpFile.Close()
 
-	slog.Debug("findDoneStringFromPipePane 1", "file", tmpFileName)
+	logger.Debug("findDoneStringFromPipePane 1")
 
 	b, err := io.ReadAll(tmpFile)
 	if err != nil {
-		slog.Error("findDoneStringFromPipePane", "file", tmpFileName, "read err", err)
+		logger.Error("findDoneStringFromPipePane", "read err", err)
 		return false, err
 	}
-	slog.Debug("findDoneStringFromPipePane 2", "file", tmpFileName, "length", len(b))
+	logger.Debug("findDoneStringFromPipePane 2", "length", len(b))
 	return bytes.Contains(b, []byte(x.doneString)), nil
 }
 
