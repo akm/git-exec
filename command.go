@@ -1,10 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"io"
-	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -20,20 +16,6 @@ func newCommand(args []string) *Command {
 		Envs: envs,
 		Args: commandArgs,
 	}
-}
-
-func (c *Command) Run() error {
-	cmd := exec.Command(c.Args[0], c.Args[1:]...)
-	cmd.Env = append(os.Environ(), c.Envs...)
-	cmd.Stdin = os.Stdin
-	var buf bytes.Buffer
-	cmd.Stdout = io.MultiWriter(os.Stdout, &buf)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	c.Output = buf.String()
-	return nil
 }
 
 func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {

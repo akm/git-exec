@@ -17,6 +17,9 @@ type Options struct {
 	SkipGuard                   bool
 	SkipGuardUncommittedChanges bool
 	SkipGuardUntrackedFiles     bool
+
+	DebugLog    bool
+	Interactive bool
 }
 
 func newOptions() *Options {
@@ -66,12 +69,14 @@ func (o *OptionType) withoutEnv() *OptionType {
 }
 
 var defaultOptions = &Options{
-	Help:      false,
-	Version:   false,
-	Directory: "",
-	Emoji:     "🤖",
-	Prompt:    "$",
-	Template:  `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`,
+	Help:        false,
+	Version:     false,
+	Directory:   "",
+	Emoji:       "🤖",
+	Prompt:      "$",
+	Template:    `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`,
+	DebugLog:    false,
+	Interactive: false,
 }
 
 var (
@@ -83,6 +88,9 @@ var (
 	optSkipGuard                   = newOptionType("", "--skip-guard", false, func(o *Options, _ string) { o.SkipGuard = true })
 	optSkipGuardUncommittedChanges = newOptionType("", "--skip-guard-uncommitted-changes", false, func(o *Options, _ string) { o.SkipGuardUncommittedChanges = true })
 	optSkipGuardUntrackedFiles     = newOptionType("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
+
+	optDebugLog    = newOptionType("-D", "--debug-log", false, func(o *Options, _ string) { o.DebugLog = true })
+	optInteractive = newOptionType("-i", "--interactive", false, func(o *Options, _ string) { o.Interactive = true })
 
 	optHelp    = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).withoutEnv()
 	optVersion = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
@@ -96,6 +104,8 @@ var optionTypes = []*OptionType{
 	optSkipGuard,
 	optSkipGuardUncommittedChanges,
 	optSkipGuardUntrackedFiles,
+	optDebugLog,
+	optInteractive,
 	optHelp,
 	optVersion,
 }

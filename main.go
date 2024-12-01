@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -48,9 +49,16 @@ func process(options *Options, commandArgs []string) error {
 	}
 
 	command := newCommand(commandArgs)
+	var runner Runner
+	if options.Interactive {
+		runner = newTmuxRunner(options.DebugLog)
+	} else {
+		runner = newStandardRunner(options.DebugLog)
+	}
 
 	if err := changeDir((options.Directory), func() error {
-		if err := command.Run(); err != nil {
+		if err := runner.Run(command); err != nil {
+			slog.Error("Command execution failed", "error", err)
 			return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 		}
 		return nil
