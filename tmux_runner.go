@@ -162,10 +162,11 @@ func (x *TmuxRunner) findDoneStringFromPipePane(tmpFileName string) (bool, error
 }
 
 func init() {
-	f, err := os.Open("debug.log")
-	if err == nil {
-		panic("failed to open debug.log")
+	f, err := os.OpenFile("debug.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		panic(fmt.Errorf("failed to open debug.log, %w", err))
 	}
-	logger := slog.New(slog.NewTextHandler(f, nil))
+	// defer f.Close()
+	logger := slog.New(slog.NewTextHandler(f, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	slog.SetDefault(logger)
 }
