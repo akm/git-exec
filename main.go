@@ -48,12 +48,10 @@ func process(options *Options, commandArgs []string) error {
 	}
 
 	command := newCommand(commandArgs)
-	if options.DebugLog {
-		command.EnableDebugLog()
-	}
+	runner := newStandardRunner(options.DebugLog)
 
 	if err := changeDir((options.Directory), func() error {
-		if err := command.Run(); err != nil {
+		if err := runner.Run(command); err != nil {
 			return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 		}
 		return nil

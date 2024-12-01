@@ -12,8 +12,6 @@ type Command struct {
 	Envs   []string
 	Args   []string
 	Output string
-
-	debugLog bool
 }
 
 func newCommand(args []string) *Command {
@@ -24,17 +22,27 @@ func newCommand(args []string) *Command {
 	}
 }
 
-func (c *Command) EnableDebugLog() {
-	c.debugLog = true
+type StandardRunner struct {
+	debugLog bool
 }
 
-func (c *Command) Run() (rerr error) {
+func (x *StandardRunner) EnableDebugLog() {
+	x.debugLog = true
+}
+
+func newStandardRunner(debugLog bool) *StandardRunner {
+	return &StandardRunner{
+		debugLog: debugLog,
+	}
+}
+
+func (x *StandardRunner) Run(c *Command) (rerr error) {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
 	cmd.Stdin = os.Stdin
 	var buf bytes.Buffer
 
-	stdoutWriter, stdoutTd, err := c.newOutputWriter(os.Stdout, &buf, "./stdout.log")
+	stdoutWriter, stdoutTd, err := x.newOutputWriter(os.Stdout, &buf, "./stdout.log")
 	if err != nil {
 		return nil
 	}
@@ -44,7 +52,7 @@ func (c *Command) Run() (rerr error) {
 		}
 	}()
 
-	stderrWriter, stderrTd, err := c.newOutputWriter(os.Stderr, &buf, "./stderr.log")
+	stderrWriter, stderrTd, err := x.newOutputWriter(os.Stderr, &buf, "./stderr.log")
 	if err != nil {
 		return nil
 	}
@@ -63,8 +71,8 @@ func (c *Command) Run() (rerr error) {
 	return nil
 }
 
-func (c *Command) newOutputWriter(original io.Writer, buf *bytes.Buffer, debugLogFile string) (io.Writer, func() error, error) {
-	if !c.debugLog {
+func (x *StandardRunner) newOutputWriter(original io.Writer, buf *bytes.Buffer, debugLogFile string) (io.Writer, func() error, error) {
+	if !x.debugLog {
 		return io.MultiWriter(os.Stdout, buf), func() error { return nil }, nil
 	}
 	logFile, err := os.OpenFile(debugLogFile, os.O_CREATE|os.O_WRONLY, 0644)
