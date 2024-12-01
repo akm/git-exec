@@ -157,3 +157,7 @@ func (x *TmuxRunner) findDoneStringFromPipePane(tmpFileName string) (bool, error
 	}
 	return bytes.Contains(b, []byte(x.doneString)), nil
 }
+
+func init() {
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+}
