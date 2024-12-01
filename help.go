@@ -61,7 +61,7 @@ var optionMessageMap = map[string]string{
 	"--skip-guard-uncommitted-changes": "Skip the guard check for uncommitted changes before executing command.",
 	"--skip-guard-untracked-files":     "Skip the guard check for untracked files before executing command.",
 	"--debug-log":                      "Output debug log.",
-	"--tmux":                           "Use tmux to execute the command.",
+	"--interactive":                    "Interactive mode for command which requires input. tmux is required to use.",
 }
 
 var defaultValueGetterMap = func() map[string]func() string {

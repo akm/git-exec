@@ -50,7 +50,7 @@ func process(options *Options, commandArgs []string) error {
 
 	command := newCommand(commandArgs)
 	var runner Runner
-	if options.Tmux {
+	if options.Interactive {
 		runner = newTmuxRunner(options.DebugLog)
 	} else {
 		runner = newStandardRunner(options.DebugLog)
