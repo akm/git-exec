@@ -11,6 +11,8 @@ type StandardRunner struct {
 	debugLog bool
 }
 
+var _ Runner = (*StandardRunner)(nil)
+
 func (x *StandardRunner) EnableDebugLog() {
 	x.debugLog = true
 }
