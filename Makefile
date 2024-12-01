@@ -30,3 +30,13 @@ VERSION_TAG_NAME = v$(VERSION)
 tag_push:
 	git tag $(VERSION_TAG_NAME)
 	git push origin $(VERSION_TAG_NAME)
+
+TEXT_TEMPLATE_CLI=$(shell go env GOPATH)/bin/text-template-cli
+$(TEXT_TEMPLATE_CLI):
+	go install github.com/akm/text-template-cli@latest
+
+README.md: README-gen
+
+.PHONY: README-gen
+README-gen:
+	$(TEXT_TEMPLATE_CLI) README.md.tmpl > README.md
