@@ -72,7 +72,7 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 	for {
 		time.Sleep(x.interval)
 
-		found, err := x.findDoneStringFromPipePane()
+		found, err := x.findDoneString()
 		if err != nil {
 			return err
 		}
@@ -165,28 +165,28 @@ func (x *TmuxRunner) killSession() error {
 	return x.tmux("kill-session", "-t", x.session)
 }
 
-func (x *TmuxRunner) findDoneStringFromPipePane() (bool, error) {
+func (x *TmuxRunner) findDoneString() (bool, error) {
 	logger := slog.Default().With("file", x.pipeLogFile)
-	logger.Debug("findDoneStringFromPipePane 0")
+	logger.Debug("findDoneString 0")
 	tmpFile, err := os.Open(x.pipeLogFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			logger.Debug("findDoneStringFromPipePane", "err", "not found")
+			logger.Debug("findDoneString", "err", "not found")
 			return false, nil
 		}
-		logger.Error("findDoneStringFromPipePane", "err", err)
+		logger.Error("findDoneString", "err", err)
 		return false, err
 	}
 	defer tmpFile.Close()
 
-	logger.Debug("findDoneStringFromPipePane 1")
+	logger.Debug("findDoneString 1")
 
 	b, err := io.ReadAll(tmpFile)
 	if err != nil {
-		logger.Error("findDoneStringFromPipePane", "read err", err)
+		logger.Error("findDoneString", "read err", err)
 		return false, err
 	}
-	logger.Debug("findDoneStringFromPipePane 2", "length", len(b))
+	logger.Debug("findDoneString 2", "length", len(b))
 	return bytes.Contains(b, []byte(x.doneString)), nil
 }
 
