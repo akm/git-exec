@@ -105,9 +105,9 @@ var optionTypes = []*OptionType{
 	optSkipGuardUncommittedChanges,
 	optSkipGuardUntrackedFiles,
 	optDebugLog,
+	optTmux,
 	optHelp,
 	optVersion,
-	optTmux,
 }
 
 var optionKeyMap = func() map[string]*OptionType {
