@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
@@ -37,6 +38,14 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 		ch <- x.tmuxNewSession()
 	}()
 
+	time.Sleep(1 * time.Second)
+
+	defer func() {
+		if err := x.killSession(); err != nil && rerr == nil {
+			rerr = err
+		}
+	}()
+
 	inputs := append(append(c.Envs, c.Args...), "; echo "+x.doneString)
 	if err := x.tmuxSendKeys(inputs...); err != nil {
 		return err
@@ -67,10 +76,6 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 	}
 	c.Output = output
 
-	if err := x.killSession(); err != nil {
-		return err
-	}
-
 	if err := <-ch; err != nil {
 		return err
 	}
@@ -81,6 +86,7 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 func (x *TmuxRunner) tmux(subcommand string, args ...string) error {
 	arguments := append([]string{subcommand}, args...)
 	cmd := exec.Command("tmux", arguments...)
+	slog.Debug("tmux", "args", arguments)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("tmux %s: %w", strings.Join(arguments, " "), err)
 	}
@@ -112,6 +118,7 @@ func (x *TmuxRunner) pipePane(args ...string) error {
 
 func (x *TmuxRunner) tmuxCapturePane() (string, error) {
 	cmd := exec.Command("tmux", "capture-pane", "-t", x.session, "-pS", "-", "-e")
+	slog.Debug("tmux capture-pane", "args", cmd.Args)
 	b, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("tmux capture-pane: %w", err)
