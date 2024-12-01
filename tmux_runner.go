@@ -95,7 +95,7 @@ func (x *TmuxRunner) tmuxSendKeys(args ...string) error {
 	arguments := []string{
 		"-t",
 		x.session,
-		strings.Join(args, " "),
+		singleQuote(strings.Join(args, " ")),
 		"C-m",
 	}
 	return x.tmux("send-keys", arguments...)
