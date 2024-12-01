@@ -82,7 +82,7 @@ func (x *TmuxRunner) tmux(subcommand string, args ...string) error {
 	arguments := append([]string{subcommand}, args...)
 	cmd := exec.Command("tmux", arguments...)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("tmux %s %s: %w", subcommand, strings.Join(arguments, " "), err)
+		return fmt.Errorf("tmux %s: %w", strings.Join(arguments, " "), err)
 	}
 	return nil
 }
@@ -93,7 +93,6 @@ func (x *TmuxRunner) tmuxNewSession() error {
 
 func (x *TmuxRunner) tmuxSendKeys(args ...string) error {
 	arguments := []string{
-		"send-keys",
 		"-t",
 		x.session,
 		strings.Join(args, " "),
