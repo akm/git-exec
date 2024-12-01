@@ -69,16 +69,8 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 		return err
 	}
 
-	for {
-		time.Sleep(x.interval)
-
-		found, err := x.findDoneString()
-		if err != nil {
-			return err
-		}
-		if found {
-			break
-		}
+	if err := x.wait(); err != nil {
+		return err
 	}
 
 	output, err := x.tmuxCapturePane()
@@ -163,6 +155,21 @@ func (x *TmuxRunner) tmuxCapturePane() (string, error) {
 
 func (x *TmuxRunner) killSession() error {
 	return x.tmux("kill-session", "-t", x.session)
+}
+
+func (x *TmuxRunner) wait() error {
+	for {
+		time.Sleep(x.interval)
+
+		found, err := x.findDoneString()
+		if err != nil {
+			return err
+		}
+		if found {
+			break
+		}
+	}
+	return nil
 }
 
 func (x *TmuxRunner) findDoneString() (bool, error) {
