@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -57,6 +58,7 @@ func process(options *Options, commandArgs []string) error {
 
 	if err := changeDir((options.Directory), func() error {
 		if err := runner.Run(command); err != nil {
+			slog.Error("Command execution failed", "error", err)
 			return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 		}
 		return nil
