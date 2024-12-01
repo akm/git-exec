@@ -113,7 +113,6 @@ func (x *TmuxRunner) tmuxSendKeys(args ...string) error {
 
 func (x *TmuxRunner) pipePane(args ...string) error {
 	arguments := append([]string{
-		"pipe-pane",
 		"-t",
 		x.session,
 	}, args...)
@@ -163,5 +162,10 @@ func (x *TmuxRunner) findDoneStringFromPipePane(tmpFileName string) (bool, error
 }
 
 func init() {
-	slog.SetLogLoggerLevel(slog.LevelDebug)
+	f, err := os.Open("debug.log")
+	if err == nil {
+		panic("failed to open debug.log")
+	}
+	logger := slog.New(slog.NewTextHandler(f, nil))
+	slog.SetDefault(logger)
 }
