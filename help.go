@@ -9,10 +9,13 @@ func help() {
 	firstLine := `Usage: git-exec [options ...] [key=value ...] <command> [args ...]`
 	examples := `Examples:
 * Specify environment variables.
-	git-exec FOO=fooooo make args1 args2
+	git exec FOO=fooooo make args1 args2
 
 * Use shell to work with redirect operator.
-	git-exec /bin/bash -c 'echo "foo" >> README.md'
+	git exec /bin/bash -c 'echo "foo" >> README.md'
+
+* Use interactive mode for command which requires input such as "npx sv create" for SvelteKit.
+	git exec -i npx sv create my-app
 `
 	indent := "  "
 	optionItems := make([]string, len(optionTypes))
