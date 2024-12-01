@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -25,7 +26,7 @@ func newTmuxRunner(debugLog bool) *TmuxRunner {
 	return &TmuxRunner{
 		session:     "git-exec-session",
 		doneString:  "git-exec-done",
-		pipeLogFile: "/Users/akima/workspace/git-exec/trace.log",
+		pipeLogFile: filepath.Join(os.TempDir(), "trace.log"),
 		debugLog:    debugLog,
 		interval:    1_000 * time.Millisecond,
 	}
@@ -35,8 +36,6 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 	if _, err := exec.LookPath("tmux"); err != nil {
 		return fmt.Errorf("tmux is not installed. Please install tmux. See https://github.com/tmux/tmux/wiki/Installing")
 	}
-
-	tracingFile := "/Users/akima/workspace/git-exec/trace.log"
 
 	ch := make(chan error)
 	go func() {
@@ -68,6 +67,12 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 	// }
 	// defer os.Remove(tmpFile.Name())
 
+	defer func() {
+		if err := os.Remove(x.pipeLogFile); err != nil && rerr == nil {
+			rerr = err
+		}
+	}()
+
 	if err := x.startPipePane(); err != nil {
 		return err
 	}
@@ -75,7 +80,7 @@ func (x *TmuxRunner) Run(c *Command) (rerr error) {
 	for {
 		time.Sleep(x.interval)
 
-		found, err := x.findDoneStringFromPipePane(tracingFile)
+		found, err := x.findDoneStringFromPipePane()
 		if err != nil {
 			return err
 		}
