@@ -56,11 +56,13 @@ func process(options *Options, commandArgs []string) error {
 		runner = newStandardRunner(options.DebugLog)
 	}
 
+	var commitMessage *commitMessage
 	if err := changeDir((options.Directory), func() error {
 		if err := runner.Run(command); err != nil {
 			slog.Error("Command execution failed", "error", err)
 			return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
 		}
+		commitMessage = newCommitMessage(command, options)
 		return nil
 	}); err != nil {
 		return err
@@ -69,8 +71,6 @@ func process(options *Options, commandArgs []string) error {
 	if err := add(); err != nil {
 		return err
 	}
-
-	commitMessage := newCommitMessage(command, options)
 
 	if guardMessage != "" {
 		commitMessage.Body = guardMessage + "\n\n" + commitMessage.Body
