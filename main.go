@@ -84,7 +84,7 @@ func process(options *Options, commandArgs []string) error {
 		return fmt.Errorf("Failed to build commit message: %+v", err)
 	}
 
-	if err := Commit(msg); err != nil {
+	if err := git.Commit(msg); err != nil {
 		return err
 	}
 
