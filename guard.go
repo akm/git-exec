@@ -38,12 +38,12 @@ func (g *guardResult) Format() string {
 }
 
 func guard(opts *Options) (*guardResult, error) {
-	diff, err := uncommittedChanges()
+	diff, err := UncommittedChanges()
 	if err != nil {
 		return nil, err
 	}
 
-	untrackedFiles, err := untrackedFiles()
+	untrackedFiles, err := UntrackedFiles()
 	if err != nil {
 		return nil, err
 	}

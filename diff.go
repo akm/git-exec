@@ -5,7 +5,7 @@ import (
 	"os/exec"
 )
 
-func uncommittedChanges() (string, error) {
+func UncommittedChanges() (string, error) {
 	output, err := exec.Command("git", "diff").CombinedOutput()
 	if err != nil {
 		return "", err
@@ -13,7 +13,7 @@ func uncommittedChanges() (string, error) {
 	return string(bytes.TrimSpace(output)), nil
 }
 
-func untrackedFiles() (string, error) {
+func UntrackedFiles() (string, error) {
 	cmd := exec.Command("git", "ls-files", "--others", "--exclude-standard")
 	output, err := cmd.Output()
 	if err != nil {
