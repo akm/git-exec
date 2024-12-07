@@ -39,7 +39,7 @@ func main() {
 
 func process(options *Options, commandArgs []string) error {
 	var guardMessage string
-	if guardResult, err := guard(options); err != nil {
+	if guardResult, err := Guard(options); err != nil {
 		return err
 	} else if guardResult != nil {
 		if guardResult.skipped {

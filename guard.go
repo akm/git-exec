@@ -39,7 +39,7 @@ func (g *guardResult) Format() string {
 	return strings.Join(parts, "\n\n")
 }
 
-func guard(opts *Options) (*guardResult, error) {
+func Guard(opts *Options) (*guardResult, error) {
 	diff, err := git.UncommittedChanges()
 	if err != nil {
 		return nil, err
