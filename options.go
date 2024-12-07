@@ -82,6 +82,6 @@ func newOptions() *Options {
 	return opts.NewOptions(optionTypes, defaultOptions)
 }
 
-func parseOptions(args []string) (*Options, []string, error) {
+func ParseOptions(args []string) (*Options, []string, error) {
 	return opts.Parse(defaultOptions, optionTypes, args...)
 }

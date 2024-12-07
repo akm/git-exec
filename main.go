@@ -12,7 +12,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	options, commandArgs, err := parseOptions(os.Args[1:])
+	options, commandArgs, err := ParseOptions(os.Args[1:])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
 	}
