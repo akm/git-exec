@@ -21,10 +21,6 @@ func newOptionType(envKeyPrefix, shortName, longName string, hasValue bool, setF
 	}
 }
 
-func (o *OptionType) setValue(opts *Options, value string) {
-	o.SetFunc(opts, value)
-}
-
 func (o *OptionType) envKey() string {
 	return o.envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }

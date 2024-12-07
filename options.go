@@ -30,7 +30,7 @@ func newOptions() *Options {
 			continue
 		}
 		if v := os.Getenv(opt.envKey()); v != "" {
-			opt.setValue(r, v)
+			opt.SetFunc(r, v)
 		}
 	}
 	return r
@@ -100,7 +100,7 @@ func parseOptions(args []string) (*Options, []string, error) {
 	var pendingOptionType *OptionType
 	for _, arg := range args {
 		if pendingOptionType != nil {
-			pendingOptionType.setValue(options, arg)
+			pendingOptionType.SetFunc(options, arg)
 			pendingOptionType = nil
 			continue
 		}
@@ -112,7 +112,7 @@ func parseOptions(args []string) (*Options, []string, error) {
 			if optionType.HasValue {
 				pendingOptionType = optionType
 			} else {
-				optionType.setValue(options, "")
+				optionType.SetFunc(options, "")
 			}
 		} else {
 			inOptions = false
