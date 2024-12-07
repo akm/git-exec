@@ -32,25 +32,29 @@ var defaultOptions = &Options{
 
 const envKeyPrefix = "GIT_EXEC_"
 
-func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *opts.Definition[Options] {
-	return opts.NewDefinition(envKeyPrefix, shortName, longName, hasValue, setFunc)
+func boolOpt(shortName, longName string, setFunc func(*Options)) *opts.Definition[Options] {
+	return opts.NewDefinition(envKeyPrefix, shortName, longName, false, func(o *Options, v string) { setFunc(o) })
+}
+
+func strOpt(shortName, longName string, setFunc func(*Options, string)) *opts.Definition[Options] {
+	return opts.NewDefinition(envKeyPrefix, shortName, longName, true, setFunc)
 }
 
 var (
-	optDirectory = newOpt("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).WithoutEnv()
-	optEmoji     = newOpt("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
-	optPrompt    = newOpt("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
-	optTemplate  = newOpt("-t", "--template", true, func(o *Options, v string) { o.Template = v })
+	optDirectory = strOpt("-C", "--directory", func(o *Options, v string) { o.Directory = v }).WithoutEnv()
+	optEmoji     = strOpt("-e", "--emoji", func(o *Options, v string) { o.Emoji = v })
+	optPrompt    = strOpt("-p", "--prompt", func(o *Options, v string) { o.Prompt = v })
+	optTemplate  = strOpt("-t", "--template", func(o *Options, v string) { o.Template = v })
 
-	optSkipGuard                   = newOpt("", "--skip-guard", false, func(o *Options, _ string) { o.SkipGuard = true })
-	optSkipGuardUncommittedChanges = newOpt("", "--skip-guard-uncommitted-changes", false, func(o *Options, _ string) { o.SkipGuardUncommittedChanges = true })
-	optSkipGuardUntrackedFiles     = newOpt("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
+	optSkipGuard                   = boolOpt("", "--skip-guard", func(o *Options) { o.SkipGuard = true })
+	optSkipGuardUncommittedChanges = boolOpt("", "--skip-guard-uncommitted-changes", func(o *Options) { o.SkipGuardUncommittedChanges = true })
+	optSkipGuardUntrackedFiles     = boolOpt("", "--skip-guard-untracked-files", func(o *Options) { o.SkipGuardUntrackedFiles = true })
 
-	optDebugLog    = newOpt("-D", "--debug-log", false, func(o *Options, _ string) { o.DebugLog = true })
-	optInteractive = newOpt("-i", "--interactive", false, func(o *Options, _ string) { o.Interactive = true })
+	optDebugLog    = boolOpt("-D", "--debug-log", func(o *Options) { o.DebugLog = true })
+	optInteractive = boolOpt("-i", "--interactive", func(o *Options) { o.Interactive = true })
 
-	optHelp    = newOpt("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).WithoutEnv()
-	optVersion = newOpt("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).WithoutEnv()
+	optHelp    = boolOpt("-h", "--help", func(o *Options) { o.Help = true }).WithoutEnv()
+	optVersion = boolOpt("-v", "--version", func(o *Options) { o.Version = true }).WithoutEnv()
 )
 
 var optionTypes = []*opts.Definition[Options]{
