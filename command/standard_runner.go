@@ -1,12 +1,10 @@
-package main
+package command
 
 import (
 	"bytes"
 	"io"
 	"os"
 	"os/exec"
-
-	"github.com/akm/git-exec/command"
 )
 
 type StandardRunner struct {
@@ -15,13 +13,13 @@ type StandardRunner struct {
 
 var _ Runner = (*StandardRunner)(nil)
 
-func newStandardRunner(debugLog bool) *StandardRunner {
+func NewStandardRunner(debugLog bool) *StandardRunner {
 	return &StandardRunner{
 		debugLog: debugLog,
 	}
 }
 
-func (x *StandardRunner) Run(c *command.Command) (rerr error) {
+func (x *StandardRunner) Run(c *Command) (rerr error) {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
 	cmd.Stdin = os.Stdin

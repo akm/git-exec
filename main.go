@@ -51,21 +51,21 @@ func process(options *Options, commandArgs []string) error {
 		}
 	}
 
-	command := command.NewCommand(commandArgs)
-	var runner Runner
+	cmd := command.NewCommand(commandArgs)
+	var runner command.Runner
 	if options.Interactive {
-		runner = newTmuxRunner(options.DebugLog)
+		runner = command.NewTmuxRunner(options.DebugLog)
 	} else {
-		runner = newStandardRunner(options.DebugLog)
+		runner = command.NewStandardRunner(options.DebugLog)
 	}
 
 	var commitMessage *commitMessage
 	if err := changeDir((options.Directory), func() error {
-		if err := runner.Run(command); err != nil {
+		if err := runner.Run(cmd); err != nil {
 			slog.Error("Command execution failed", "error", err)
-			return fmt.Errorf("Command execution failed: %+v\n%s", err, command.Output)
+			return fmt.Errorf("Command execution failed: %+v\n%s", err, cmd.Output)
 		}
-		commitMessage = newCommitMessage(command, options)
+		commitMessage = newCommitMessage(cmd, options)
 		return nil
 	}); err != nil {
 		return err
