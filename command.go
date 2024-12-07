@@ -20,12 +20,13 @@ func newCommand(args []string) *Command {
 
 func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
 	equalNotFound := false
-	return splitStringsInto2(args, func(arg string) bool {
+	var a, b []string
+	for _, arg := range args {
 		if !equalNotFound && strings.Contains(arg, "=") {
-			return true
+			a = append(a, arg)
 		} else {
-			equalNotFound = true
-			return false
+			b = append(b, arg)
 		}
-	})
+	}
+	return a, b
 }
