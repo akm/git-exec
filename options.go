@@ -70,7 +70,7 @@ var (
 	optVersion = newOpt("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
 )
 
-var optionTypes = []*OptionType{
+var optionTypes = OptionTypes{
 	optDirectory,
 	optEmoji,
 	optPrompt,
