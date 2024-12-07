@@ -78,7 +78,13 @@ func process(options *Options, commandArgs []string) error {
 		commitMessage.Body = guardMessage + "\n\n" + commitMessage.Body
 	}
 
-	if err := Commit(commitMessage); err != nil {
+	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
+	msg, err := commitMessage.Build()
+	if err != nil {
+		return fmt.Errorf("Failed to build commit message: %+v", err)
+	}
+
+	if err := Commit(msg); err != nil {
 		return err
 	}
 
