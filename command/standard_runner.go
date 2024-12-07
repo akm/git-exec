@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ type StandardRunner struct {
 
 var _ Runner = (*StandardRunner)(nil)
 
-func newStandardRunner(debugLog bool) *StandardRunner {
+func NewStandardRunner(debugLog bool) *StandardRunner {
 	return &StandardRunner{
 		debugLog: debugLog,
 	}

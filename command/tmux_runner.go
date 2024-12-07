@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"bytes"
@@ -25,7 +25,7 @@ type TmuxRunner struct {
 
 var _ Runner = (*TmuxRunner)(nil)
 
-func newTmuxRunner(debugLog bool) *TmuxRunner {
+func NewTmuxRunner(debugLog bool) *TmuxRunner {
 	doneStringPrefix := "git-exec-done"
 	return &TmuxRunner{
 		session:        "git-exec-session",

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -189,7 +189,7 @@ func TestParseOptions(t *testing.T) {
 				defer func() { os.Setenv(key, envBackup) }()
 			}
 
-			options, commandArgs, err := parseOptions(ptn.args)
+			options, commandArgs, err := ParseOptions(ptn.args)
 			assert.Equal(t, ptn.options, options)
 			assert.Equal(t, ptn.commandArgs, commandArgs)
 			if ptn.error == "" {

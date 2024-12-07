@@ -1,16 +1,16 @@
-package main
+package git
 
 import (
 	"fmt"
 	"os/exec"
 )
 
-func add() error {
-	uncommittedChanges, err := uncommittedChanges()
+func Add() error {
+	uncommittedChanges, err := UncommittedChanges()
 	if err != nil {
 		return fmt.Errorf("git diff failed: %+v", err)
 	}
-	untrackedFiles, err := untrackedFiles()
+	untrackedFiles, err := UntrackedFiles()
 	if err != nil {
 		return fmt.Errorf("git ls-files failed: %+v", err)
 	}
