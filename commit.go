@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func commit(commitMessage *commitMessage) error {
+func Commit(commitMessage *commitMessage) error {
 	// 3. "git commit" を以下のオプションと標準力を指定して実行する。
 	msg, err := commitMessage.Build()
 	if err != nil {

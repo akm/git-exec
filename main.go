@@ -78,7 +78,7 @@ func process(options *Options, commandArgs []string) error {
 		commitMessage.Body = guardMessage + "\n\n" + commitMessage.Body
 	}
 
-	if err := commit(commitMessage); err != nil {
+	if err := Commit(commitMessage); err != nil {
 		return err
 	}
 
