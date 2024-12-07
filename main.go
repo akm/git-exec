@@ -42,7 +42,7 @@ func process(options *Options, commandArgs []string) error {
 	if guardResult, err := Guard(&options.GuardOptions); err != nil {
 		return err
 	} else if guardResult != nil {
-		if guardResult.skipped {
+		if guardResult.Skipped {
 			guardMessage = guardResult.Format()
 			fmt.Fprintf(os.Stderr, "Guard skipped: %s\n", guardMessage)
 		} else {

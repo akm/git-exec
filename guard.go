@@ -8,21 +8,21 @@ import (
 )
 
 type GuardResult struct {
-	uncommittedChanges string
-	untrackedFiles     string
-	skipped            bool
+	UncommittedChanges string
+	UntrackedFiles     string
+	Skipped            bool
 }
 
 func (g *GuardResult) Message() string {
 	var r string
-	if len(g.uncommittedChanges) > 0 && len(g.untrackedFiles) > 0 {
+	if len(g.UncommittedChanges) > 0 && len(g.UntrackedFiles) > 0 {
 		r = "There are uncommitted changes and untracked files"
-	} else if len(g.untrackedFiles) > 0 {
+	} else if len(g.UntrackedFiles) > 0 {
 		r = "There are untracked files"
 	} else {
 		r = "There are uncommitted changes"
 	}
-	if g.skipped {
+	if g.Skipped {
 		r += " but guard was skipped by options"
 	}
 	return r
@@ -30,11 +30,11 @@ func (g *GuardResult) Message() string {
 
 func (g *GuardResult) Format() string {
 	parts := []string{g.Message()}
-	if len(g.uncommittedChanges) > 0 {
-		parts = append(parts, fmt.Sprintf("Uncommitted changes:\n%s", g.uncommittedChanges))
+	if len(g.UncommittedChanges) > 0 {
+		parts = append(parts, fmt.Sprintf("Uncommitted changes:\n%s", g.UncommittedChanges))
 	}
-	if len(g.untrackedFiles) > 0 {
-		parts = append(parts, fmt.Sprintf("Untracked files:\n%s", g.untrackedFiles))
+	if len(g.UntrackedFiles) > 0 {
+		parts = append(parts, fmt.Sprintf("Untracked files:\n%s", g.UntrackedFiles))
 	}
 	return strings.Join(parts, "\n\n")
 }
@@ -61,9 +61,9 @@ func Guard(opts *GuardOptions) (*GuardResult, error) {
 	}
 
 	return &GuardResult{
-		uncommittedChanges: diff,
-		untrackedFiles:     untrackedFiles,
-		skipped: opts.SkipGuard ||
+		UncommittedChanges: diff,
+		UntrackedFiles:     untrackedFiles,
+		Skipped: opts.SkipGuard ||
 			(opts.SkipGuardUncommittedChanges && len(diff) > 0) ||
 			(opts.SkipGuardUntrackedFiles && len(untrackedFiles) > 0),
 	}, nil
