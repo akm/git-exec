@@ -7,13 +7,13 @@ import (
 	"github.com/akm/git-exec/git"
 )
 
-type guardResult struct {
+type GuardResult struct {
 	uncommittedChanges string
 	untrackedFiles     string
 	skipped            bool
 }
 
-func (g *guardResult) Message() string {
+func (g *GuardResult) Message() string {
 	var r string
 	if len(g.uncommittedChanges) > 0 && len(g.untrackedFiles) > 0 {
 		r = "There are uncommitted changes and untracked files"
@@ -28,7 +28,7 @@ func (g *guardResult) Message() string {
 	return r
 }
 
-func (g *guardResult) Format() string {
+func (g *GuardResult) Format() string {
 	parts := []string{g.Message()}
 	if len(g.uncommittedChanges) > 0 {
 		parts = append(parts, fmt.Sprintf("Uncommitted changes:\n%s", g.uncommittedChanges))
@@ -39,7 +39,7 @@ func (g *guardResult) Format() string {
 	return strings.Join(parts, "\n\n")
 }
 
-func Guard(opts *Options) (*guardResult, error) {
+func Guard(opts *Options) (*GuardResult, error) {
 	diff, err := git.UncommittedChanges()
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func Guard(opts *Options) (*guardResult, error) {
 		return nil, nil
 	}
 
-	return &guardResult{
+	return &GuardResult{
 		uncommittedChanges: diff,
 		untrackedFiles:     untrackedFiles,
 		skipped: opts.SkipGuard ||
