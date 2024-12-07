@@ -85,19 +85,11 @@ var optionTypes = opts.Definitions[Options]{
 	optVersion,
 }
 
-var optionKeyMap = func() map[string]*opts.Definition[Options] {
-	m := map[string]*opts.Definition[Options]{}
-	for _, opt := range optionTypes {
-		m[opt.ShortName] = opt
-		m[opt.LongName] = opt
-	}
-	return m
-}()
-
 func parseOptions(args []string) (*Options, []string, error) {
 	options := newOptions()
 	commandArgs := []string{}
 	inOptions := true
+	optionKeyMap := opts.BuildKeyMap(optionTypes)
 	var pendingOptionType *opts.Definition[Options]
 	for _, arg := range args {
 		if pendingOptionType != nil {
