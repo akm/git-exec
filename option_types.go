@@ -1,3 +1,3 @@
 package main
 
-type OptionTypes []*OptionType
+type OptionTypes[T any] []*OptionType[T]

@@ -2,17 +2,17 @@ package main
 
 import "strings"
 
-type OptionType struct {
+type OptionType[T any] struct {
 	envKeyPrefix string
 	ShortName    string
 	LongName     string
 	HasValue     bool
-	SetFunc      func(*Options, string)
+	SetFunc      func(*T, string)
 	WithoutEnv   bool
 }
 
-func newOptionType(envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType {
-	return &OptionType{
+func newOptionType[T any](envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*T, string)) *OptionType[T] {
+	return &OptionType[T]{
 		envKeyPrefix: envKeyPrefix,
 		ShortName:    shortName,
 		LongName:     longName,
@@ -21,11 +21,11 @@ func newOptionType(envKeyPrefix, shortName, longName string, hasValue bool, setF
 	}
 }
 
-func (o *OptionType) envKey() string {
+func (o *OptionType[T]) envKey() string {
 	return o.envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }
 
-func (o *OptionType) withoutEnv() *OptionType {
+func (o *OptionType[T]) withoutEnv() *OptionType[T] {
 	o.WithoutEnv = true
 	return o
 }
