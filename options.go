@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/akm/git-exec/git"
+	"github.com/akm/git-exec/opts"
 )
 
 type Options struct {
@@ -26,10 +27,10 @@ func newOptions() *Options {
 	defaultOptionsCopy := *defaultOptions
 	r := &defaultOptionsCopy
 	for _, opt := range optionTypes {
-		if opt.WithoutEnv {
+		if opt.GetWithoutEnv() {
 			continue
 		}
-		if v := os.Getenv(opt.envKey()); v != "" {
+		if v := os.Getenv(opt.EnvKey()); v != "" {
 			opt.SetFunc(r, v)
 		}
 	}
@@ -38,8 +39,8 @@ func newOptions() *Options {
 
 const envKeyPrefix = "GIT_EXEC_"
 
-func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType[Options] {
-	return newOptionType(envKeyPrefix, shortName, longName, hasValue, setFunc)
+func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *opts.OptionType[Options] {
+	return opts.NewOptionType(envKeyPrefix, shortName, longName, hasValue, setFunc)
 }
 
 var defaultOptions = &Options{
@@ -54,7 +55,7 @@ var defaultOptions = &Options{
 }
 
 var (
-	optDirectory = newOpt("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).withoutEnv()
+	optDirectory = newOpt("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).WithoutEnv()
 	optEmoji     = newOpt("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
 	optPrompt    = newOpt("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
 	optTemplate  = newOpt("-t", "--template", true, func(o *Options, v string) { o.Template = v })
@@ -66,11 +67,11 @@ var (
 	optDebugLog    = newOpt("-D", "--debug-log", false, func(o *Options, _ string) { o.DebugLog = true })
 	optInteractive = newOpt("-i", "--interactive", false, func(o *Options, _ string) { o.Interactive = true })
 
-	optHelp    = newOpt("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).withoutEnv()
-	optVersion = newOpt("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
+	optHelp    = newOpt("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).WithoutEnv()
+	optVersion = newOpt("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).WithoutEnv()
 )
 
-var optionTypes = OptionTypes[Options]{
+var optionTypes = opts.OptionTypes[Options]{
 	optDirectory,
 	optEmoji,
 	optPrompt,
@@ -84,8 +85,8 @@ var optionTypes = OptionTypes[Options]{
 	optVersion,
 }
 
-var optionKeyMap = func() map[string]*OptionType[Options] {
-	m := map[string]*OptionType[Options]{}
+var optionKeyMap = func() map[string]*opts.OptionType[Options] {
+	m := map[string]*opts.OptionType[Options]{}
 	for _, opt := range optionTypes {
 		m[opt.ShortName] = opt
 		m[opt.LongName] = opt
@@ -97,7 +98,7 @@ func parseOptions(args []string) (*Options, []string, error) {
 	options := newOptions()
 	commandArgs := []string{}
 	inOptions := true
-	var pendingOptionType *OptionType[Options]
+	var pendingOptionType *opts.OptionType[Options]
 	for _, arg := range args {
 		if pendingOptionType != nil {
 			pendingOptionType.SetFunc(options, arg)

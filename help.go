@@ -41,8 +41,8 @@ func help() {
 		}
 
 		optionItems[i] = item
-		if !opt.WithoutEnv {
-			envVarItems = append(envVarItems, fmt.Sprintf(longNameFormat+" %s", opt.LongName, opt.envKey()))
+		if !opt.GetWithoutEnv() {
+			envVarItems = append(envVarItems, fmt.Sprintf(longNameFormat+" %s", opt.LongName, opt.EnvKey()))
 		}
 	}
 	options := "Options:\n" + strings.Join(optionItems, "\n")

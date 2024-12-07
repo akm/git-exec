@@ -1,4 +1,4 @@
-package main
+package opts
 
 import "strings"
 
@@ -8,10 +8,10 @@ type OptionType[T any] struct {
 	LongName     string
 	HasValue     bool
 	SetFunc      func(*T, string)
-	WithoutEnv   bool
+	withoutEnv   bool
 }
 
-func newOptionType[T any](envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*T, string)) *OptionType[T] {
+func NewOptionType[T any](envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*T, string)) *OptionType[T] {
 	return &OptionType[T]{
 		envKeyPrefix: envKeyPrefix,
 		ShortName:    shortName,
@@ -21,11 +21,14 @@ func newOptionType[T any](envKeyPrefix, shortName, longName string, hasValue boo
 	}
 }
 
-func (o *OptionType[T]) envKey() string {
+func (o *OptionType[T]) EnvKey() string {
 	return o.envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }
 
-func (o *OptionType[T]) withoutEnv() *OptionType[T] {
-	o.WithoutEnv = true
+func (o *OptionType[T]) WithoutEnv() *OptionType[T] {
+	o.withoutEnv = true
 	return o
+}
+func (o *OptionType[T]) GetWithoutEnv() bool {
+	return o.withoutEnv
 }
