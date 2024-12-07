@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"strings"
 
 	"github.com/akm/git-exec/git"
 	"github.com/akm/git-exec/opts"
@@ -86,34 +84,5 @@ var optionTypes = opts.Definitions[Options]{
 }
 
 func parseOptions(args []string) (*Options, []string, error) {
-	options := newOptions()
-	commandArgs := []string{}
-	inOptions := true
-	optionKeyMap := opts.BuildKeyMap(optionTypes)
-	var pendingOptionType *opts.Definition[Options]
-	for _, arg := range args {
-		if pendingOptionType != nil {
-			pendingOptionType.SetFunc(options, arg)
-			pendingOptionType = nil
-			continue
-		}
-		if inOptions && strings.HasPrefix(arg, "-") {
-			optionType, ok := optionKeyMap[arg]
-			if !ok {
-				return nil, nil, fmt.Errorf("Unknown option: %s", arg)
-			}
-			if optionType.HasValue {
-				pendingOptionType = optionType
-			} else {
-				optionType.SetFunc(options, "")
-			}
-		} else {
-			inOptions = false
-			commandArgs = append(commandArgs, arg)
-		}
-	}
-	if pendingOptionType != nil {
-		return nil, nil, fmt.Errorf("no value given for option %s", pendingOptionType.LongName)
-	}
-	return options, commandArgs, nil
+	return opts.Parse(newOptions, optionTypes, args...)
 }
