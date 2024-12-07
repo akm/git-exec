@@ -7,7 +7,7 @@ type Definition[T any] struct {
 	ShortName    string
 	LongName     string
 	HasValue     bool
-	SetFunc      func(*T, string)
+	Setter       func(*T, string)
 	withoutEnv   bool
 }
 
@@ -17,7 +17,7 @@ func NewDefinition[T any](envKeyPrefix, shortName, longName string, hasValue boo
 		ShortName:    shortName,
 		LongName:     longName,
 		HasValue:     hasValue,
-		SetFunc:      setFunc,
+		Setter:       setFunc,
 	}
 }
 

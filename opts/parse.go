@@ -14,7 +14,7 @@ func Parse[T any](defualtOptions *T, defs []*Definition[T], args ...string) (*T,
 	var pendingOptionType *Definition[T]
 	for _, arg := range args {
 		if pendingOptionType != nil {
-			pendingOptionType.SetFunc(options, arg)
+			pendingOptionType.Setter(options, arg)
 			pendingOptionType = nil
 			continue
 		}
@@ -26,7 +26,7 @@ func Parse[T any](defualtOptions *T, defs []*Definition[T], args ...string) (*T,
 			if optionType.HasValue {
 				pendingOptionType = optionType
 			} else {
-				optionType.SetFunc(options, "")
+				optionType.Setter(options, "")
 			}
 		} else {
 			inOptions = false
@@ -47,7 +47,7 @@ func NewOptions[T any](defs []*Definition[T], defaultOptions *T) *T {
 			continue
 		}
 		if v := os.Getenv(opt.EnvKey()); v != "" {
-			opt.SetFunc(r, v)
+			opt.Setter(r, v)
 		}
 	}
 	return r
