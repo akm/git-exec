@@ -39,7 +39,13 @@ func (g *GuardResult) Format() string {
 	return strings.Join(parts, "\n\n")
 }
 
-func Guard(opts *Options) (*GuardResult, error) {
+type GuardOptions struct {
+	SkipGuard                   bool
+	SkipGuardUncommittedChanges bool
+	SkipGuardUntrackedFiles     bool
+}
+
+func Guard(opts *GuardOptions) (*GuardResult, error) {
 	diff, err := git.UncommittedChanges()
 	if err != nil {
 		return nil, err

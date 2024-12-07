@@ -14,9 +14,7 @@ type Options struct {
 	Prompt    string
 	Template  string
 
-	SkipGuard                   bool
-	SkipGuardUncommittedChanges bool
-	SkipGuardUntrackedFiles     bool
+	GuardOptions
 
 	DebugLog    bool
 	Interactive bool
