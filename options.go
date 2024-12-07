@@ -30,17 +30,15 @@ var defaultOptions = &Options{
 	Interactive: false,
 }
 
-const envKeyPrefix = "GIT_EXEC_"
-
-func boolOpt(shortName, longName string, setFunc func(*Options)) *opts.Definition[Options] {
-	return opts.NewDefinition(envKeyPrefix, shortName, longName, false, func(o *Options, v string) { setFunc(o) })
-}
-
-func strOpt(shortName, longName string, setFunc func(*Options, string)) *opts.Definition[Options] {
-	return opts.NewDefinition(envKeyPrefix, shortName, longName, true, setFunc)
-}
-
 var optionTypes = func() []*opts.Definition[Options] {
+	envKeyPrefix := "GIT_EXEC_"
+	boolOpt := func(shortName, longName string, setFunc func(*Options)) *opts.Definition[Options] {
+		return opts.NewDefinition(envKeyPrefix, shortName, longName, false, func(o *Options, v string) { setFunc(o) })
+	}
+	strOpt := func(shortName, longName string, setFunc func(*Options, string)) *opts.Definition[Options] {
+		return opts.NewDefinition(envKeyPrefix, shortName, longName, true, setFunc)
+	}
+
 	return []*opts.Definition[Options]{
 		strOpt("-C", "--directory", func(o *Options, v string) { o.Directory = v }).WithoutEnv(),
 		strOpt("-e", "--emoji", func(o *Options, v string) { o.Emoji = v }),
