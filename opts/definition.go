@@ -8,6 +8,8 @@ type Definition[T any] struct {
 	LongName     string
 	HasValue     bool
 	Setter       func(*T, string)
+	getter       func(*T) string
+	help         string
 	withoutEnv   bool
 }
 
@@ -31,4 +33,20 @@ func (o *Definition[T]) WithoutEnv() *Definition[T] {
 }
 func (o *Definition[_]) GetWithoutEnv() bool {
 	return o.withoutEnv
+}
+
+func (o *Definition[T]) Getter(getter func(*T) string) *Definition[T] {
+	o.getter = getter
+	return o
+}
+func (o *Definition[T]) GetGetter() func(*T) string {
+	return o.getter
+}
+
+func (o *Definition[T]) Help(help string) *Definition[T] {
+	o.help = help
+	return o
+}
+func (o *Definition[T]) GetHelp() string {
+	return o.help
 }
