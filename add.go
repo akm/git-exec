@@ -3,14 +3,16 @@ package main
 import (
 	"fmt"
 	"os/exec"
+
+	"github.com/akm/git-exec/git"
 )
 
 func add() error {
-	uncommittedChanges, err := UncommittedChanges()
+	uncommittedChanges, err := git.UncommittedChanges()
 	if err != nil {
 		return fmt.Errorf("git diff failed: %+v", err)
 	}
-	untrackedFiles, err := UntrackedFiles()
+	untrackedFiles, err := git.UntrackedFiles()
 	if err != nil {
 		return fmt.Errorf("git ls-files failed: %+v", err)
 	}

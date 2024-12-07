@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/akm/git-exec/git"
 )
 
 type guardResult struct {
@@ -38,12 +40,12 @@ func (g *guardResult) Format() string {
 }
 
 func guard(opts *Options) (*guardResult, error) {
-	diff, err := UncommittedChanges()
+	diff, err := git.UncommittedChanges()
 	if err != nil {
 		return nil, err
 	}
 
-	untrackedFiles, err := UntrackedFiles()
+	untrackedFiles, err := git.UntrackedFiles()
 	if err != nil {
 		return nil, err
 	}
