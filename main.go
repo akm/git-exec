@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	"github.com/akm/git-exec/git"
 )
 
 func main() {
@@ -68,7 +70,7 @@ func process(options *Options, commandArgs []string) error {
 		return err
 	}
 
-	if err := Add(); err != nil {
+	if err := git.Add(); err != nil {
 		return err
 	}
 
