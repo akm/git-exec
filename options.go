@@ -19,12 +19,6 @@ type Options struct {
 	Interactive bool
 }
 
-const envKeyPrefix = "GIT_EXEC_"
-
-func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *opts.Definition[Options] {
-	return opts.NewDefinition(envKeyPrefix, shortName, longName, hasValue, setFunc)
-}
-
 var defaultOptions = &Options{
 	Help:        false,
 	Version:     false,
@@ -34,6 +28,12 @@ var defaultOptions = &Options{
 	Template:    `{{.Emoji}} [{{.Location}}] {{.Prompt}} {{.Command}}`,
 	DebugLog:    false,
 	Interactive: false,
+}
+
+const envKeyPrefix = "GIT_EXEC_"
+
+func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *opts.Definition[Options] {
+	return opts.NewDefinition(envKeyPrefix, shortName, longName, hasValue, setFunc)
 }
 
 var (
