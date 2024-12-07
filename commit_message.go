@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
+
+	"github.com/akm/git-exec/command"
 )
 
 type commitMessage struct {
@@ -17,7 +19,7 @@ type commitMessage struct {
 	Body     string
 }
 
-func newCommitMessage(command *Command, options *Options) *commitMessage {
+func newCommitMessage(command *command.Command, options *Options) *commitMessage {
 	argParts := make([]string, len(command.Args))
 	for i, arg := range command.Args {
 		if strings.Contains(arg, " ") && !(strings.HasPrefix(arg, "'") && strings.HasSuffix(arg, "'")) {

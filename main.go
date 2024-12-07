@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/akm/git-exec/command"
 	"github.com/akm/git-exec/git"
 )
 
@@ -50,7 +51,7 @@ func process(options *Options, commandArgs []string) error {
 		}
 	}
 
-	command := newCommand(commandArgs)
+	command := command.NewCommand(commandArgs)
 	var runner Runner
 	if options.Interactive {
 		runner = newTmuxRunner(options.DebugLog)

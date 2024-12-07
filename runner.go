@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/akm/git-exec/command"
+)
+
 type Runner interface {
-	Run(c *Command) error
+	Run(c *command.Command) error
 }

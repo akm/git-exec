@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"strings"
@@ -10,7 +10,7 @@ type Command struct {
 	Output string
 }
 
-func newCommand(args []string) *Command {
+func NewCommand(args []string) *Command {
 	envs, commandArgs := splitArgsToEnvsAndCommand(args)
 	return &Command{
 		Envs: envs,

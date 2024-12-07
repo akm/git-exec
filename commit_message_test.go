@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/akm/git-exec/command"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -87,7 +89,7 @@ func TestCommitMessage(t *testing.T) {
 			getLocation, bkGetLocation = func() (string, error) { return ptn.location, nil }, getLocation
 			defer func() { getLocation = bkGetLocation }()
 
-			command := &Command{Envs: ptn.envs, Args: ptn.args, Output: ptn.output}
+			command := &command.Command{Envs: ptn.envs, Args: ptn.args, Output: ptn.output}
 			commitMsg := newCommitMessage(command, newOptions())
 
 			actual, err := commitMsg.Build()

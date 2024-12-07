@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/akm/git-exec/command"
 )
 
 type StandardRunner struct {
@@ -19,7 +21,7 @@ func newStandardRunner(debugLog bool) *StandardRunner {
 	}
 }
 
-func (x *StandardRunner) Run(c *Command) (rerr error) {
+func (x *StandardRunner) Run(c *command.Command) (rerr error) {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
 	cmd.Stdin = os.Stdin

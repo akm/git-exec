@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/akm/git-exec/command"
 )
 
 type TmuxRunner struct {
@@ -37,7 +39,7 @@ func newTmuxRunner(debugLog bool) *TmuxRunner {
 	}
 }
 
-func (x *TmuxRunner) Run(c *Command) (rerr error) {
+func (x *TmuxRunner) Run(c *command.Command) (rerr error) {
 	if _, err := exec.LookPath("tmux"); err != nil {
 		return fmt.Errorf("tmux is not installed. Please install tmux. See https://github.com/tmux/tmux/wiki/Installing")
 	}
