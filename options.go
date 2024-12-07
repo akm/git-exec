@@ -32,11 +32,11 @@ var defaultOptions = &Options{
 
 var optionTypes = func() []*opts.Definition[Options] {
 	envKeyPrefix := "GIT_EXEC_"
-	boolOpt := func(shortName, longName string, setFunc func(*Options)) *opts.Definition[Options] {
-		return opts.NewDefinition(envKeyPrefix, shortName, longName, false, func(o *Options, v string) { setFunc(o) })
+	boolOpt := func(shortName, longName string, setter func(*Options)) *opts.Definition[Options] {
+		return opts.NewDefinition(envKeyPrefix, shortName, longName, false, func(o *Options, v string) { setter(o) })
 	}
-	strOpt := func(shortName, longName string, setFunc func(*Options, string)) *opts.Definition[Options] {
-		return opts.NewDefinition(envKeyPrefix, shortName, longName, true, setFunc)
+	strOpt := func(shortName, longName string, setter func(*Options, string)) *opts.Definition[Options] {
+		return opts.NewDefinition(envKeyPrefix, shortName, longName, true, setter)
 	}
 
 	return []*opts.Definition[Options]{
