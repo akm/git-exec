@@ -32,13 +32,13 @@ func main() {
 		}
 	}
 
-	if err := process(options, commandArgs); err != nil {
+	if err := Run(options, commandArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 }
 
-func process(options *Options, commandArgs []string) error {
+func Run(options *Options, commandArgs []string) error {
 	var guardMessage string
 	if guardResult, err := git.Guard(&options.GuardOptions); err != nil {
 		return err
