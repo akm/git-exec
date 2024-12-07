@@ -2,11 +2,12 @@ package opts
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
-func Parse[T any](factory func() *T, defs []*Definition[T], args ...string) (*T, []string, error) {
-	options := factory()
+func Parse[T any](defualtOptions *T, defs []*Definition[T], args ...string) (*T, []string, error) {
+	options := NewOptions(defs, defualtOptions)
 	commandArgs := []string{}
 	inOptions := true
 	optionKeyMap := buildKeyMap(defs)
@@ -36,6 +37,20 @@ func Parse[T any](factory func() *T, defs []*Definition[T], args ...string) (*T,
 		return nil, nil, fmt.Errorf("no value given for option %s", pendingOptionType.LongName)
 	}
 	return options, commandArgs, nil
+}
+
+func NewOptions[T any](defs []*Definition[T], defaultOptions *T) *T {
+	copy := *defaultOptions
+	r := &copy
+	for _, opt := range defs {
+		if opt.GetWithoutEnv() {
+			continue
+		}
+		if v := os.Getenv(opt.EnvKey()); v != "" {
+			opt.SetFunc(r, v)
+		}
+	}
+	return r
 }
 
 func buildKeyMap[T any](defs []*Definition[T]) map[string]*Definition[T] {

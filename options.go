@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/akm/git-exec/git"
 	"github.com/akm/git-exec/opts"
 )
@@ -19,20 +17,6 @@ type Options struct {
 
 	DebugLog    bool
 	Interactive bool
-}
-
-func newOptions() *Options {
-	defaultOptionsCopy := *defaultOptions
-	r := &defaultOptionsCopy
-	for _, opt := range optionTypes {
-		if opt.GetWithoutEnv() {
-			continue
-		}
-		if v := os.Getenv(opt.EnvKey()); v != "" {
-			opt.SetFunc(r, v)
-		}
-	}
-	return r
 }
 
 const envKeyPrefix = "GIT_EXEC_"
@@ -83,6 +67,10 @@ var optionTypes = []*opts.Definition[Options]{
 	optVersion,
 }
 
+func newOptions() *Options {
+	return opts.NewOptions(optionTypes, defaultOptions)
+}
+
 func parseOptions(args []string) (*Options, []string, error) {
-	return opts.Parse(newOptions, optionTypes, args...)
+	return opts.Parse(defaultOptions, optionTypes, args...)
 }
