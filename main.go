@@ -68,7 +68,7 @@ func process(options *Options, commandArgs []string) error {
 		return err
 	}
 
-	if err := add(); err != nil {
+	if err := Add(); err != nil {
 		return err
 	}
 

@@ -7,7 +7,7 @@ import (
 	"github.com/akm/git-exec/git"
 )
 
-func add() error {
+func Add() error {
 	uncommittedChanges, err := git.UncommittedChanges()
 	if err != nil {
 		return fmt.Errorf("git diff failed: %+v", err)
