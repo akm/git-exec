@@ -37,19 +37,21 @@ func newOptions() *Options {
 }
 
 type OptionType struct {
-	ShortName  string
-	LongName   string
-	HasValue   bool
-	SetFunc    func(*Options, string)
-	WithoutEnv bool
+	envKeyPrefix string
+	ShortName    string
+	LongName     string
+	HasValue     bool
+	SetFunc      func(*Options, string)
+	WithoutEnv   bool
 }
 
-func newOptionType(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType {
+func newOptionType(envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType {
 	return &OptionType{
-		ShortName: shortName,
-		LongName:  longName,
-		HasValue:  hasValue,
-		SetFunc:   setFunc,
+		envKeyPrefix: envKeyPrefix,
+		ShortName:    shortName,
+		LongName:     longName,
+		HasValue:     hasValue,
+		SetFunc:      setFunc,
 	}
 }
 
@@ -57,15 +59,19 @@ func (o *OptionType) setValue(opts *Options, value string) {
 	o.SetFunc(opts, value)
 }
 
-const envKeyPrefix = "GIT_EXEC_"
-
 func (o *OptionType) envKey() string {
-	return envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
+	return o.envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }
 
 func (o *OptionType) withoutEnv() *OptionType {
 	o.WithoutEnv = true
 	return o
+}
+
+const envKeyPrefix = "GIT_EXEC_"
+
+func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *OptionType {
+	return newOptionType(envKeyPrefix, shortName, longName, hasValue, setFunc)
 }
 
 var defaultOptions = &Options{
@@ -80,20 +86,20 @@ var defaultOptions = &Options{
 }
 
 var (
-	optDirectory = newOptionType("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).withoutEnv()
-	optEmoji     = newOptionType("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
-	optPrompt    = newOptionType("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
-	optTemplate  = newOptionType("-t", "--template", true, func(o *Options, v string) { o.Template = v })
+	optDirectory = newOpt("-C", "--directory", true, func(o *Options, v string) { o.Directory = v }).withoutEnv()
+	optEmoji     = newOpt("-e", "--emoji", true, func(o *Options, v string) { o.Emoji = v })
+	optPrompt    = newOpt("-p", "--prompt", true, func(o *Options, v string) { o.Prompt = v })
+	optTemplate  = newOpt("-t", "--template", true, func(o *Options, v string) { o.Template = v })
 
-	optSkipGuard                   = newOptionType("", "--skip-guard", false, func(o *Options, _ string) { o.SkipGuard = true })
-	optSkipGuardUncommittedChanges = newOptionType("", "--skip-guard-uncommitted-changes", false, func(o *Options, _ string) { o.SkipGuardUncommittedChanges = true })
-	optSkipGuardUntrackedFiles     = newOptionType("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
+	optSkipGuard                   = newOpt("", "--skip-guard", false, func(o *Options, _ string) { o.SkipGuard = true })
+	optSkipGuardUncommittedChanges = newOpt("", "--skip-guard-uncommitted-changes", false, func(o *Options, _ string) { o.SkipGuardUncommittedChanges = true })
+	optSkipGuardUntrackedFiles     = newOpt("", "--skip-guard-untracked-files", false, func(o *Options, _ string) { o.SkipGuardUntrackedFiles = true })
 
-	optDebugLog    = newOptionType("-D", "--debug-log", false, func(o *Options, _ string) { o.DebugLog = true })
-	optInteractive = newOptionType("-i", "--interactive", false, func(o *Options, _ string) { o.Interactive = true })
+	optDebugLog    = newOpt("-D", "--debug-log", false, func(o *Options, _ string) { o.DebugLog = true })
+	optInteractive = newOpt("-i", "--interactive", false, func(o *Options, _ string) { o.Interactive = true })
 
-	optHelp    = newOptionType("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).withoutEnv()
-	optVersion = newOptionType("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
+	optHelp    = newOpt("-h", "--help", false, func(o *Options, _ string) { o.Help = true }).withoutEnv()
+	optVersion = newOpt("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).withoutEnv()
 )
 
 var optionTypes = []*OptionType{
