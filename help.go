@@ -7,7 +7,7 @@ import (
 	"github.com/akm/git-exec/opts"
 )
 
-func help() {
+func Help() {
 	firstLine := `Usage: git-exec [options ...] [key=value ...] <command> [args ...]`
 	examples := `Examples:
 * Specify environment variables.

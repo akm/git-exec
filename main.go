@@ -8,7 +8,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		help()
+		Help()
 		os.Exit(1)
 	}
 
@@ -17,7 +17,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
 	}
 	if options.Help {
-		help()
+		Help()
 		os.Exit(0)
 	} else if options.Version {
 		if len(commandArgs) == 0 {
