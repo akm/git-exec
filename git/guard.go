@@ -1,10 +1,8 @@
-package main
+package git
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/akm/git-exec/git"
 )
 
 type GuardResult struct {
@@ -46,12 +44,12 @@ type GuardOptions struct {
 }
 
 func Guard(opts *GuardOptions) (*GuardResult, error) {
-	diff, err := git.UncommittedChanges()
+	diff, err := UncommittedChanges()
 	if err != nil {
 		return nil, err
 	}
 
-	untrackedFiles, err := git.UntrackedFiles()
+	untrackedFiles, err := UntrackedFiles()
 	if err != nil {
 		return nil, err
 	}

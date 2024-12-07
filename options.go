@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/akm/git-exec/git"
 )
 
 type Options struct {
@@ -14,7 +16,7 @@ type Options struct {
 	Prompt    string
 	Template  string
 
-	GuardOptions
+	git.GuardOptions
 
 	DebugLog    bool
 	Interactive bool
