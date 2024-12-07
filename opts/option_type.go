@@ -2,7 +2,7 @@ package opts
 
 import "strings"
 
-type OptionType[T any] struct {
+type Definition[T any] struct {
 	envKeyPrefix string
 	ShortName    string
 	LongName     string
@@ -11,8 +11,8 @@ type OptionType[T any] struct {
 	withoutEnv   bool
 }
 
-func NewOptionType[T any](envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*T, string)) *OptionType[T] {
-	return &OptionType[T]{
+func NewDefinition[T any](envKeyPrefix, shortName, longName string, hasValue bool, setFunc func(*T, string)) *Definition[T] {
+	return &Definition[T]{
 		envKeyPrefix: envKeyPrefix,
 		ShortName:    shortName,
 		LongName:     longName,
@@ -21,14 +21,14 @@ func NewOptionType[T any](envKeyPrefix, shortName, longName string, hasValue boo
 	}
 }
 
-func (o *OptionType[T]) EnvKey() string {
+func (o *Definition[T]) EnvKey() string {
 	return o.envKeyPrefix + strings.ToUpper(strings.ReplaceAll(strings.TrimLeft(o.LongName, "-"), "-", "_"))
 }
 
-func (o *OptionType[T]) WithoutEnv() *OptionType[T] {
+func (o *Definition[T]) WithoutEnv() *Definition[T] {
 	o.withoutEnv = true
 	return o
 }
-func (o *OptionType[T]) GetWithoutEnv() bool {
+func (o *Definition[T]) GetWithoutEnv() bool {
 	return o.withoutEnv
 }

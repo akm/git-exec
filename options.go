@@ -39,8 +39,8 @@ func newOptions() *Options {
 
 const envKeyPrefix = "GIT_EXEC_"
 
-func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *opts.OptionType[Options] {
-	return opts.NewOptionType(envKeyPrefix, shortName, longName, hasValue, setFunc)
+func newOpt(shortName, longName string, hasValue bool, setFunc func(*Options, string)) *opts.Definition[Options] {
+	return opts.NewDefinition(envKeyPrefix, shortName, longName, hasValue, setFunc)
 }
 
 var defaultOptions = &Options{
@@ -71,7 +71,7 @@ var (
 	optVersion = newOpt("-v", "--version", false, func(o *Options, _ string) { o.Version = true }).WithoutEnv()
 )
 
-var optionTypes = opts.OptionTypes[Options]{
+var optionTypes = opts.Definitions[Options]{
 	optDirectory,
 	optEmoji,
 	optPrompt,
@@ -85,8 +85,8 @@ var optionTypes = opts.OptionTypes[Options]{
 	optVersion,
 }
 
-var optionKeyMap = func() map[string]*opts.OptionType[Options] {
-	m := map[string]*opts.OptionType[Options]{}
+var optionKeyMap = func() map[string]*opts.Definition[Options] {
+	m := map[string]*opts.Definition[Options]{}
 	for _, opt := range optionTypes {
 		m[opt.ShortName] = opt
 		m[opt.LongName] = opt
@@ -98,7 +98,7 @@ func parseOptions(args []string) (*Options, []string, error) {
 	options := newOptions()
 	commandArgs := []string{}
 	inOptions := true
-	var pendingOptionType *opts.OptionType[Options]
+	var pendingOptionType *opts.Definition[Options]
 	for _, arg := range args {
 		if pendingOptionType != nil {
 			pendingOptionType.SetFunc(options, arg)

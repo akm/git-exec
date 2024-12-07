@@ -1,3 +1,3 @@
 package opts
 
-type OptionTypes[T any] []*OptionType[T]
+type Definitions[T any] []*Definition[T]
