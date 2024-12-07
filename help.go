@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/akm/git-exec/opts"
 )
 
 func help() {
@@ -17,35 +19,8 @@ func help() {
 * Use interactive mode for command which requires input such as "npx sv create" for SvelteKit.
 	git exec -i npx sv create my-app
 `
-	indent := "  "
-	optionItems := make([]string, len(optionTypes))
-	maxLongNameLength := 0
-	for _, opt := range optionTypes {
-		if maxLongNameLength < len(opt.LongName) {
-			maxLongNameLength = len(opt.LongName)
-		}
-	}
+	optionItems, envVarItems := opts.HelpItemsAndEnvVarMappings[Options](defaultOptions, optionTypes)
 
-	defaultOptions := newOptions()
-	envVarItems := []string{}
-	longNameFormat := "%-" + fmt.Sprintf("%ds", maxLongNameLength)
-	for i, opt := range optionTypes {
-		var item string
-		if opt.ShortName == "" {
-			item = fmt.Sprintf("%s    "+longNameFormat, indent, opt.LongName)
-		} else {
-			item = fmt.Sprintf("%s%s, "+longNameFormat, indent, opt.ShortName, opt.LongName)
-		}
-		item += " " + opt.GetHelp()
-		if getter := opt.GetGetter(); getter != nil {
-			item += fmt.Sprintf(" (default: %s)", getter(defaultOptions))
-		}
-
-		optionItems[i] = item
-		if !opt.GetWithoutEnv() {
-			envVarItems = append(envVarItems, fmt.Sprintf(longNameFormat+" %s", opt.LongName, opt.EnvKey()))
-		}
-	}
 	options := "Options:\n" + strings.Join(optionItems, "\n")
 	envVars := "Environment variable mapping:\n" + strings.Join(envVarItems, "\n")
 
