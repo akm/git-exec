@@ -11,21 +11,23 @@ import (
 func Setup(t testing.TB, srcDir, destDir string) func() {
 	// srcDir を destDir にコピーして、コピーされたディレクトリにカレントディレクトリを移動する
 	// 戻り値は カレントディレクトリを元のディレクトリに戻し、コピーされたディレクトリを削除する関数
+	t.Logf("srcDir: %s\n", srcDir)
+	t.Logf("destDir: %s\n", destDir)
 
 	absSrcDir, err := filepath.Abs(srcDir)
 	if err != nil {
 		t.Fatalf("Failed to get absolute path: %v", err)
 	}
+	t.Logf("absSrcDir: %s\n", absSrcDir)
 
 	groundDir := filepath.Join(destDir, filepath.Base(absSrcDir)) // srcDir に . が指定された場合でもそのディレクトリ名を取得する
+	t.Logf("groundDir: %s\n", groundDir)
 	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {
 		t.Fatalf("Failed to create directory: %v", err)
 	}
 
 	// Copy srcDir to destDir
-	if err := copyDir(srcDir, groundDir); err != nil {
-		t.Fatalf("Failed to copy directory: %v", err)
-	}
+	copyDir(t, srcDir, groundDir)
 
 	// Save the current working directory
 	origWd, err := os.Getwd()
@@ -53,51 +55,48 @@ func Setup(t testing.TB, srcDir, destDir string) func() {
 }
 
 // Helper function to copy a directory
-func copyDir(src string, dest string) error {
+func copyDir(t testing.TB, src string, dest string) {
+	t.Logf("copyDir: %s -> %s\n", src, dest)
+
 	entries, err := os.ReadDir(src)
 	if err != nil {
-		return err
+		t.Fatalf("Failed to read directory: %v", err)
 	}
 
 	err = os.MkdirAll(dest, os.ModePerm)
 	if err != nil {
-		return err
+		t.Fatalf("Failed to create directory: %v", err)
 	}
 
 	for _, entry := range entries {
-		if err := copyEntry(src, dest, entry); err != nil {
-			return err
-		}
+		copyEntry(t, src, dest, entry)
 	}
-
-	return nil
 }
 
-func copyEntry(src string, dest string, entry fs.DirEntry) error {
+func copyEntry(t testing.TB, src string, dest string, entry fs.DirEntry) {
 	srcPath := filepath.Join(src, entry.Name())
 	destPath := filepath.Join(dest, entry.Name())
 
+	t.Logf("copyEntry: %s -> %s\n", srcPath, destPath)
+
 	if entry.IsDir() {
-		if err := copyDir(srcPath, destPath); err != nil {
-			return err
-		}
-		return nil
+		copyDir(t, srcPath, destPath)
+		return
 	}
 
 	reader, err := os.Open(srcPath)
 	if err != nil {
-		return err
+		t.Fatalf("Failed to open source file: %v", err)
 	}
 	defer reader.Close()
 
 	writer, err := os.Create(destPath)
 	if err != nil {
-		return err
+		t.Fatalf("Failed to create destination file: %v", err)
 	}
 	defer writer.Close()
 
 	if _, err := io.Copy(writer, reader); err != nil {
-		return err
+		t.Fatalf("Failed to copy file: %v", err)
 	}
-	return nil
 }
