@@ -1,6 +1,7 @@
 package testground
 
 import (
+	"os"
 	"testing"
 
 	"github.com/akm/git-exec/testdir"
@@ -9,6 +10,13 @@ import (
 
 func Setup(t *testing.T) func() {
 	t.Helper()
+
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		// git config --global user.email "foo@example.com"
+		// git config --global user.name "Foo Bar"
+		testexec.Run(t, "git", "config", "--global", "user.email", "foo@example.com")
+		testexec.Run(t, "git", "config", "--global", "user.name", "Foo Bar")
+	}
 
 	r := testdir.Setup(t, ".", testdir.FromGoModRoot(t, "tests/grounds"))
 	testexec.Run(t, "git", "init")
