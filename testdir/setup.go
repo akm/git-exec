@@ -74,15 +74,20 @@ func copyDir(t testing.TB, src string, dest string) {
 }
 
 func copyEntry(t testing.TB, src string, dest string, entry fs.DirEntry) {
+	if entry.Name() == ".git" {
+		t.Logf("skip .git directory\n")
+		return
+	}
+
 	srcPath := filepath.Join(src, entry.Name())
 	destPath := filepath.Join(dest, entry.Name())
-
-	t.Logf("copyEntry: %s -> %s\n", srcPath, destPath)
 
 	if entry.IsDir() {
 		copyDir(t, srcPath, destPath)
 		return
 	}
+
+	t.Logf("copyEntry: %s -> %s\n", srcPath, destPath)
 
 	reader, err := os.Open(srcPath)
 	if err != nil {
