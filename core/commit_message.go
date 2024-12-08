@@ -51,12 +51,6 @@ func (m *commitMessage) newTemplate() (*template.Template, error) {
 }
 
 func (m *commitMessage) Build() (string, error) {
-	location, err := getLocation()
-	if err != nil {
-		return "", err
-	}
-	m.Location = location
-
 	tmpl, err := m.newTemplate()
 	if err != nil {
 		return "", err

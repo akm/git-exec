@@ -85,12 +85,9 @@ func TestCommitMessage(t *testing.T) {
 			defer setEnvTemporarily("GIT_EXEC_PROMPT", ptn.prompt)()
 			defer setEnvTemporarily("GIT_EXEC_TEMPLATE", ptn.template)()
 
-			var bkGetLocation func() (string, error)
-			getLocation, bkGetLocation = func() (string, error) { return ptn.location, nil }, getLocation
-			defer func() { getLocation = bkGetLocation }()
-
 			command := &command.Command{Envs: ptn.envs, Args: ptn.args, Output: ptn.output}
 			commitMsg := newCommitMessage(command, newOptions())
+			commitMsg.Location = ptn.location
 
 			actual, err := commitMsg.Build()
 			assert.NoError(t, err)
