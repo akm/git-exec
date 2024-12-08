@@ -37,9 +37,7 @@ jobs:
         run: make lint
 
       - name: setup git
-        run: git config --global user.email foo@example.com && \
-          git config --global user.name "Foo Bar" && \
-          git config --global init.defaultBranch main
+        run: git config --global user.email foo@example.com && git config --global user.name "Foo Bar" && git config --global init.defaultBranch main
 
       - name: test
         run: make test
