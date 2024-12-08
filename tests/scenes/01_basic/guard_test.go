@@ -12,7 +12,7 @@ import (
 
 func TestGuardUntrackedFiles(t *testing.T) {
 	defer testground.Setup(t)()
-	lastCommitHash := stdout(t, "git", "rev-parse", "HEAD")
+	defer testground.AssertStringNotChanged(t, testground.GitLastCommitHash)()
 
 	run(t, "make", "add-one") // Let it not be committed
 
@@ -22,10 +22,6 @@ func TestGuardUntrackedFiles(t *testing.T) {
 
 Untracked files:
 work.txt`, err.Error())
-
-	// No commit should be made
-	currCommitHash := stdout(t, "git", "rev-parse", "HEAD")
-	assert.Equal(t, lastCommitHash, currCommitHash)
 }
 
 func TestGuardUncommittedChanes(t *testing.T) {
@@ -36,8 +32,7 @@ func TestGuardUncommittedChanes(t *testing.T) {
 	run(t, "git", "add", ".")
 	run(t, "git", "commit", "-m", "add one")
 
-	lastCommitHash := stdout(t, "git", "rev-parse", "HEAD")
-
+	defer testground.AssertStringNotChanged(t, testground.GitLastCommitHash)()
 	run(t, "make", "add-two") // Let it not be committed
 
 	err := core.Run(core.DefaultOptions, []string{"make", "README.md"})
@@ -47,8 +42,4 @@ func TestGuardUncommittedChanes(t *testing.T) {
 Uncommitted changes:
 `+strings.TrimSpace(stdout(t, "git", "diff")),
 		err.Error())
-
-	// No commit should be made
-	currCommitHash := stdout(t, "git", "rev-parse", "HEAD")
-	assert.Equal(t, lastCommitHash, currCommitHash)
 }
