@@ -37,6 +37,13 @@ func Run(options *Options, commandArgs []string) error {
 			return fmt.Errorf("Command execution failed: %+v\n%s", err, cmd.Output)
 		}
 		commitMessage = newCommitMessage(cmd, options)
+
+		location, err := getLocation()
+		if err != nil {
+			return err
+		}
+		commitMessage.Location = location
+
 		return nil
 	}); err != nil {
 		return err

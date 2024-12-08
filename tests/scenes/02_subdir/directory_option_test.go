@@ -20,7 +20,7 @@ func TestDirectoryOption(t *testing.T) {
 	require.NoError(t, err)
 
 	commitMessage := stdout(t, "git", "log", "-1", "--pretty=%B")
-	assert.Equal(t, `🤖 [02_subdir] $ make add-one parent-add-two
+	assert.Equal(t, `🤖 [02_subdir/sub1] $ make add-one parent-add-two
 
 `, commitMessage)
 }
