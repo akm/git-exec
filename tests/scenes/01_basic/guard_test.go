@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/akm/git-exec/core"
-	"github.com/akm/git-exec/testexec"
 	"github.com/akm/git-exec/tests/testground"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -13,9 +12,9 @@ import (
 
 func TestGuardUntrackedFiles(t *testing.T) {
 	defer testground.Setup(t)()
-	lastCommitHash := testexec.Stdout(t, "git", "rev-parse", "HEAD")
+	lastCommitHash := stdout(t, "git", "rev-parse", "HEAD")
 
-	testexec.Run(t, "make", "add-one") // Let it not be committed
+	run(t, "make", "add-one") // Let it not be committed
 
 	err := core.Run(core.DefaultOptions, []string{"make", "README.md"})
 	require.Error(t, err)
@@ -25,7 +24,7 @@ Untracked files:
 work.txt`, err.Error())
 
 	// No commit should be made
-	currCommitHash := testexec.Stdout(t, "git", "rev-parse", "HEAD")
+	currCommitHash := stdout(t, "git", "rev-parse", "HEAD")
 	assert.Equal(t, lastCommitHash, currCommitHash)
 }
 
@@ -33,23 +32,23 @@ func TestGuardUncommittedChanes(t *testing.T) {
 	defer testground.Setup(t)()
 
 	// commit add-one
-	testexec.Run(t, "make", "add-one")
-	testexec.Run(t, "git", "add", ".")
-	testexec.Run(t, "git", "commit", "-m", "add one")
+	run(t, "make", "add-one")
+	run(t, "git", "add", ".")
+	run(t, "git", "commit", "-m", "add one")
 
-	lastCommitHash := testexec.Stdout(t, "git", "rev-parse", "HEAD")
+	lastCommitHash := stdout(t, "git", "rev-parse", "HEAD")
 
-	testexec.Run(t, "make", "add-two") // Let it not be committed
+	run(t, "make", "add-two") // Let it not be committed
 
 	err := core.Run(core.DefaultOptions, []string{"make", "README.md"})
 	require.Error(t, err)
 	assert.Equal(t, `Quit processing because There are uncommitted changes
 
 Uncommitted changes:
-`+strings.TrimSpace(testexec.Stdout(t, "git", "diff")),
+`+strings.TrimSpace(stdout(t, "git", "diff")),
 		err.Error())
 
 	// No commit should be made
-	currCommitHash := testexec.Stdout(t, "git", "rev-parse", "HEAD")
+	currCommitHash := stdout(t, "git", "rev-parse", "HEAD")
 	assert.Equal(t, lastCommitHash, currCommitHash)
 }
