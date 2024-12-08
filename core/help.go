@@ -19,7 +19,7 @@ func Help() {
 * Use interactive mode for command which requires input such as "npx sv create" for SvelteKit.
 	git exec -i npx sv create my-app
 `
-	optionItems, envVarItems := opts.HelpItemsAndEnvVarMappings[Options](defaultOptions, optionTypes)
+	optionItems, envVarItems := opts.HelpItemsAndEnvVarMappings[Options](DefaultOptions, optionTypes)
 
 	options := "Options:\n" + strings.Join(optionItems, "\n")
 	envVars := "Environment variable mapping:\n" + strings.Join(envVarItems, "\n")

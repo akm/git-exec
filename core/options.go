@@ -19,7 +19,7 @@ type Options struct {
 	Interactive bool
 }
 
-var defaultOptions = &Options{
+var DefaultOptions = &Options{
 	Help:        false,
 	Version:     false,
 	Directory:   "",
@@ -79,9 +79,9 @@ var optionTypes = func() []*opts.Definition[Options] {
 }()
 
 func newOptions() *Options {
-	return opts.NewOptions(optionTypes, defaultOptions)
+	return opts.NewOptions(optionTypes, DefaultOptions)
 }
 
 func ParseOptions(args []string) (*Options, []string, error) {
-	return opts.Parse(defaultOptions, optionTypes, args...)
+	return opts.Parse(DefaultOptions, optionTypes, args...)
 }
