@@ -2,6 +2,7 @@ package testground
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/akm/git-exec/testdir"
@@ -12,12 +13,13 @@ func Setup(t *testing.T) func() {
 	t.Helper()
 
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		// git config --global user.email "foo@example.com"
-		// git config --global user.name "Foo Bar"
-		// git config --global init.defaultBranch main
-		testexec.Run(t, "git", "config", "--global", "user.email", "foo@example.com")
-		testexec.Run(t, "git", "config", "--global", "user.name", "Foo Bar")
-		testexec.Run(t, "git", "config", "--global", "init.defaultBranch", "main")
+		gitconfigPath := filepath.Join(os.Getenv("HOME"), ".gitconfig")
+		gitConfigPath := filepath.Join(os.Getenv("HOME"), ".config", "git", "config")
+		if !fileExists(gitconfigPath) && !fileExists(gitConfigPath) {
+			testexec.Run(t, "git", "config", "--global", "user.email", "foo@example.com")
+			testexec.Run(t, "git", "config", "--global", "user.name", "Foo Bar")
+			testexec.Run(t, "git", "config", "--global", "init.defaultBranch", "main")
+		}
 	}
 
 	// Suppress make's output
@@ -29,4 +31,9 @@ func Setup(t *testing.T) func() {
 	testexec.Run(t, "git", "commit", "-m", "Initial commit")
 
 	return r
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
