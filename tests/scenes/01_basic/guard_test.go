@@ -5,17 +5,14 @@ import (
 	"testing"
 
 	"github.com/akm/git-exec/core"
-	"github.com/akm/git-exec/testdir"
 	"github.com/akm/git-exec/testexec"
+	"github.com/akm/git-exec/tests/testground"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGuardUntrackedFiles(t *testing.T) {
-	defer testdir.Setup(t, ".", testdir.FromGitRoot(t, "tests/grounds"))()
-	testexec.Run(t, "git", "init")
-	testexec.Run(t, "git", "add", ".")
-	testexec.Run(t, "git", "commit", "-m", "Initial commit")
+	defer testground.Setup(t)()
 	lastCommitHash := testexec.Stdout(t, "git", "rev-parse", "HEAD")
 
 	testexec.Run(t, "make", "add-one") // Let it not be committed
@@ -33,10 +30,7 @@ work.txt`, err.Error())
 }
 
 func TestGuardUncommittedChanes(t *testing.T) {
-	defer testdir.Setup(t, ".", testdir.FromGitRoot(t, "tests/grounds"))()
-	testexec.Run(t, "git", "init")
-	testexec.Run(t, "git", "add", ".")
-	testexec.Run(t, "git", "commit", "-m", "Initial commit")
+	defer testground.Setup(t)()
 
 	// commit add-one
 	testexec.Run(t, "make", "add-one")
