@@ -12,7 +12,12 @@ func Setup(t testing.TB, srcDir, destDir string) func() {
 	// srcDir を destDir にコピーして、コピーされたディレクトリにカレントディレクトリを移動する
 	// 戻り値は カレントディレクトリを元のディレクトリに戻し、コピーされたディレクトリを削除する関数
 
-	groundDir := filepath.Join(destDir, filepath.Base(srcDir))
+	absSrcDir, err := filepath.Abs(srcDir)
+	if err != nil {
+		t.Fatalf("Failed to get absolute path: %v", err)
+	}
+
+	groundDir := filepath.Join(destDir, filepath.Base(absSrcDir)) // srcDir に . が指定された場合でもそのディレクトリ名を取得する
 	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {
 		t.Fatalf("Failed to create directory: %v", err)
 	}
