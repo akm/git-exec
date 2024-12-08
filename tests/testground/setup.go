@@ -20,6 +20,9 @@ func Setup(t *testing.T) func() {
 		testexec.Run(t, "git", "config", "--global", "init.defaultBranch", "main")
 	}
 
+	// Suppress make's output
+	os.Setenv("MAKEFLAGS", "--no-print-directory")
+
 	r := testdir.Setup(t, ".", testdir.FromGoModRoot(t, "tests/grounds"))
 	testexec.Run(t, "git", "init")
 	testexec.Run(t, "git", "add", ".")
