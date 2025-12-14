@@ -5,9 +5,11 @@ default: build lint test
 build:
 	go build -o /dev/null .
 
+TEST_OPTS=
+
 .PHONY: test
 test:
-	go test -v ./...
+	go test $(TEST_OPTS) ./...
 
 GOLANGCI_LINT_VERSION=v2.7.2
 GOLANGCI_LINT = $(shell go env GOBIN)/golangci-lint
