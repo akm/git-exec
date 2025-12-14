@@ -9,10 +9,10 @@ build:
 test:
 	go test -v ./...
 
-GOLANGCI_LINT_VERSION=v1.61.0
+GOLANGCI_LINT_VERSION=v2.7.2
 GOLANGCI_LINT = $(shell go env GOBIN)/golangci-lint
 $(GOLANGCI_LINT):
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT)
