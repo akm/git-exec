@@ -11,8 +11,16 @@ TEST_OPTS=
 test:
 	go test $(TEST_OPTS) ./...
 
+GOLANG_TOOL_GOBIN=$(shell go env GOBIN)
+GOLANG_TOOL_GOPATH=$(shell go env GOPATH)
+ifneq ($(GOLANG_TOOL_GOBIN),)
+GOLANG_TOOL_PATH_TO_BIN=$(GOLANG_TOOL_GOBIN)
+else
+GOLANG_TOOL_PATH_TO_BIN=$(GOLANG_TOOL_GOPATH)/bin
+endif
+
 GOLANGCI_LINT_VERSION=v2.7.2
-GOLANGCI_LINT = $(shell go env GOBIN)/golangci-lint
+GOLANGCI_LINT = $(GOLANG_TOOL_PATH_TO_BIN)/golangci-lint
 $(GOLANGCI_LINT):
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 
