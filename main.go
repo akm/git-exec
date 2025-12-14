@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/akm/git-exec/core"
-	"golang.org/x/exp/slog"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	if !ok {
 		logLevel = slog.LevelWarn
 	}
-	logHandler := slog.TextHandler(os.Stderr, &slog.HandlerOptions{Level: logLevel})
+	logHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: logLevel})
 	slog.SetDefault(slog.New(logHandler))
 
 	options, commandArgs, err := core.ParseOptions(os.Args[1:])
