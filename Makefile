@@ -5,14 +5,24 @@ default: build lint test
 build:
 	go build -o /dev/null .
 
+TEST_OPTS=
+
 .PHONY: test
 test:
-	go test -v ./...
+	go test $(TEST_OPTS) ./...
 
-GOLANGCI_LINT_VERSION=v1.61.0
-GOLANGCI_LINT = $(shell go env GOPATH)/bin/golangci-lint
+GOLANG_TOOL_GOBIN=$(shell go env GOBIN)
+GOLANG_TOOL_GOPATH=$(shell go env GOPATH)
+ifneq ($(GOLANG_TOOL_GOBIN),)
+GOLANG_TOOL_PATH_TO_BIN=$(GOLANG_TOOL_GOBIN)
+else
+GOLANG_TOOL_PATH_TO_BIN=$(GOLANG_TOOL_GOPATH)/bin
+endif
+
+GOLANGCI_LINT_VERSION=v2.7.2
+GOLANGCI_LINT = $(GOLANG_TOOL_PATH_TO_BIN)/golangci-lint
 $(GOLANGCI_LINT):
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT)

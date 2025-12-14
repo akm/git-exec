@@ -19,13 +19,14 @@ func NewCommand(args []string) *Command {
 }
 
 func splitArgsToEnvsAndCommand(args []string) ([]string, []string) {
-	equalNotFound := false
+	notEnvFound := false
 	var a, b []string
 	for _, arg := range args {
-		if !equalNotFound && strings.Contains(arg, "=") {
+		if !notEnvFound && strings.Contains(arg, "=") {
 			a = append(a, arg)
 		} else {
 			b = append(b, arg)
+			notEnvFound = true
 		}
 	}
 	return a, b

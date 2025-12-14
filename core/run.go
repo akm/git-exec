@@ -10,6 +10,8 @@ import (
 )
 
 func Run(options *Options, commandArgs []string) error {
+	slog.Debug("Run started", "options", options, "commandArgs", commandArgs)
+
 	var guardMessage string
 	if guardResult, err := git.Guard(&options.GuardOptions); err != nil {
 		return err

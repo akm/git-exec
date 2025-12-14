@@ -178,6 +178,20 @@ func TestParseOptions(t *testing.T) {
 			[]string{},
 			"",
 		},
+		{
+			map[string]string{},
+			[]string{"go", "mod", "edit", "-replace", "foo=bar"},
+			newExpected(),
+			[]string{"go", "mod", "edit", "-replace", "foo=bar"},
+			"",
+		},
+		{
+			map[string]string{},
+			[]string{"-C", "foo/bar", "go", "mod", "edit", "-replace", "baz/qux=../../baz/qux"},
+			newExpected(directory("foo/bar")),
+			[]string{"go", "mod", "edit", "-replace", "baz/qux=../../baz/qux"},
+			"",
+		},
 	}
 
 	for _, ptn := range patterns {

@@ -1,0 +1,14 @@
+version: "2"
+linters:
+  # Default: standard
+  # default: all
+
+  disable:
+    - errcheck
+    - staticcheck
+  # exclusions:
+  #   rules:
+  #     # Exclude some linters from running on tests files.
+  #     - path: _test\.go
+  #       linters:
+  #         - errcheck

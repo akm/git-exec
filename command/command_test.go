@@ -19,6 +19,11 @@ func TestSplitArgsToEnvsAndCommand(t *testing.T) {
 			[]string{"command", "--arg1", "arg2"},
 		},
 		{
+			[]string{"key1=val1", "command", "--arg1", "arg2", "key2=val2"},
+			[]string{"key1=val1"},
+			[]string{"command", "--arg1", "arg2", "key2=val2"},
+		},
+		{
 			[]string{"command", "--arg1", "arg2"},
 			nil,
 			[]string{"command", "--arg1", "arg2"},

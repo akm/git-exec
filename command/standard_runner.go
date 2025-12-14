@@ -3,6 +3,7 @@ package command
 import (
 	"bytes"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 )
@@ -22,6 +23,9 @@ func NewStandardRunner(debugLog bool) *StandardRunner {
 func (x *StandardRunner) Run(c *Command) (rerr error) {
 	cmd := exec.Command(c.Args[0], c.Args[1:]...)
 	cmd.Env = append(os.Environ(), c.Envs...)
+
+	slog.Debug("Executing command", "args", cmd.Args, "envs", c.Envs)
+
 	cmd.Stdin = os.Stdin
 	var buf bytes.Buffer
 

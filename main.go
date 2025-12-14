@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/akm/git-exec/core"
 )
@@ -13,6 +15,20 @@ func main() {
 		core.Help()
 		os.Exit(1)
 	}
+
+	logLevelMap := map[string]slog.Level{
+		"debug": slog.LevelDebug,
+		"info":  slog.LevelInfo,
+		"warn":  slog.LevelWarn,
+		"error": slog.LevelError,
+	}
+
+	logLevel, ok := logLevelMap[strings.ToLower(os.Getenv("LOG_LEVEL"))]
+	if !ok {
+		logLevel = slog.LevelWarn
+	}
+	logHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: logLevel})
+	slog.SetDefault(slog.New(logHandler))
 
 	options, commandArgs, err := core.ParseOptions(os.Args[1:])
 	if err != nil {
