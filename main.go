@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/akm/git-exec/core"
+	"golang.org/x/exp/slog"
 )
 
 func main() {
@@ -13,6 +15,20 @@ func main() {
 		core.Help()
 		os.Exit(1)
 	}
+
+	logLevelMap := map[string]slog.Level{
+		"debug": slog.LevelDebug,
+		"info":  slog.LevelInfo,
+		"warn":  slog.LevelWarn,
+		"error": slog.LevelError,
+	}
+
+	logLevel, ok := logLevelMap[strings.ToLower(os.Getenv("LOG_LEVEL"))]
+	if !ok {
+		logLevel = slog.LevelWarn
+	}
+	logHandler := slog.TextHandler(os.Stderr, &slog.HandlerOptions{Level: logLevel})
+	slog.SetDefault(slog.New(logHandler))
 
 	options, commandArgs, err := core.ParseOptions(os.Args[1:])
 	if err != nil {
